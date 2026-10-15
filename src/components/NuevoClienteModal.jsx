@@ -71,35 +71,17 @@ export default function NuevoClienteModal({ isOpen, onClose, onClienteCreado, cl
   const validateForm = () => {
     const errors = {};
 
-    // Validación DNI
-    if (!formData.dni || !formData.dni.trim()) {
-      errors.dni = 'El campo "Documento DNI" es obligatorio.';
-    } else if (!/^\d{8}$/.test(formData.dni.trim())) {
-      errors.dni = 'El "Documento DNI" debe contener exactamente 8 dígitos numéricos.';
-    }
+    // Los campos ya no son de carácter obligatorio.
+    // Solo se validan formatos específicos si el usuario decide rellenarlos.
 
-    // Validación Nombres
-    if (!formData.nombres || !formData.nombres.trim()) {
-      errors.nombres = 'El campo "Nombres" es obligatorio.';
-    } else if (formData.nombres.trim().length < 2) {
-      errors.nombres = 'El campo "Nombres" debe tener al menos 2 caracteres.';
-    }
-
-    // Validación Apellidos
-    if (!formData.apellidos || !formData.apellidos.trim()) {
-      errors.apellidos = 'El campo "Apellidos" es obligatorio.';
-    } else if (formData.apellidos.trim().length < 2) {
-      errors.apellidos = 'El campo "Apellidos" debe tener al menos 2 caracteres.';
-    }
-
-    // Validación Teléfono
+    // Validación Teléfono (opcional)
     if (formData.telefono && formData.telefono.trim()) {
-      if (!/^\d{9,}$/.test(formData.telefono.trim().replace(/[\s-]/g, ''))) {
-        errors.telefono = 'El "Teléfono Principal" debe contener al menos 9 dígitos numéricos.';
+      if (!/^\d{6,}$/.test(formData.telefono.trim().replace(/[\s-]/g, ''))) {
+        errors.telefono = 'El "Teléfono Principal" debe contener al menos 6 dígitos numéricos.';
       }
     }
 
-    // Validación Correo
+    // Validación Correo (opcional)
     if (formData.correo && formData.correo.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.correo.trim())) {
@@ -115,7 +97,7 @@ export default function NuevoClienteModal({ isOpen, onClose, onClienteCreado, cl
     setError('');
     setFieldErrors({});
 
-    // 1. Validación exhaustiva en el cliente
+    // 1. Validación en el cliente (campos opcionales)
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setFieldErrors(validationErrors);
@@ -127,15 +109,19 @@ export default function NuevoClienteModal({ isOpen, onClose, onClienteCreado, cl
     setLoading(true);
 
     try {
+      const fechaValida = formData.fechaNacimiento && !isNaN(new Date(formData.fechaNacimiento).getTime())
+        ? new Date(formData.fechaNacimiento).toISOString()
+        : null;
+
       if (clienteToEdit && clienteToEdit.id) {
         // Formatear payload para edición según ClienteUpdateDto de ASP.NET Core C#
         const updatePayload = {
-          dni: formData.dni.trim(),
-          nombres: formData.nombres.trim(),
-          apellidos: formData.apellidos.trim(),
+          dni: formData.dni ? formData.dni.trim() : '',
+          nombres: formData.nombres ? formData.nombres.trim() : '',
+          apellidos: formData.apellidos ? formData.apellidos.trim() : '',
           telefono: formData.telefono ? formData.telefono.trim() : '',
           direccion: formData.direccion ? formData.direccion.trim() : '',
-          fechaNacimiento: formData.fechaNacimiento ? new Date(formData.fechaNacimiento).toISOString() : null,
+          fechaNacimiento: fechaValida,
           correo: formData.correo ? formData.correo.trim() : '',
           contactoEmergencia: formData.contactoEmergencia ? formData.contactoEmergencia.trim() : '',
           observaciones: formData.observaciones ? formData.observaciones.trim() : '',
@@ -147,12 +133,12 @@ export default function NuevoClienteModal({ isOpen, onClose, onClienteCreado, cl
       } else {
         // Formatear payload para creación según ClienteCreateDto
         const createPayload = {
-          dni: formData.dni.trim(),
-          nombres: formData.nombres.trim(),
-          apellidos: formData.apellidos.trim(),
+          dni: formData.dni ? formData.dni.trim() : '',
+          nombres: formData.nombres ? formData.nombres.trim() : '',
+          apellidos: formData.apellidos ? formData.apellidos.trim() : '',
           telefono: formData.telefono ? formData.telefono.trim() : '',
           direccion: formData.direccion ? formData.direccion.trim() : '',
-          fechaNacimiento: formData.fechaNacimiento ? new Date(formData.fechaNacimiento).toISOString() : null,
+          fechaNacimiento: fechaValida,
           correo: formData.correo ? formData.correo.trim() : '',
           contactoEmergencia: formData.contactoEmergencia ? formData.contactoEmergencia.trim() : '',
           observaciones: formData.observaciones ? formData.observaciones.trim() : ''
@@ -226,15 +212,15 @@ export default function NuevoClienteModal({ isOpen, onClose, onClienteCreado, cl
             <div className="form-grid">
               <div className="field-group">
                 <label style={{ color: fieldErrors.dni ? '#dc2626' : undefined, fontWeight: 500 }}>
-                  Documento DNI *
+                  Documento DNI
                 </label>
                 <div className="input-group">
                   <CreditCard size={16} color={fieldErrors.dni ? '#dc2626' : undefined} />
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Ej. 47859214 (8 dígitos)"
-                    maxLength={8}
+                    placeholder="Ej. 47859214"
+                    maxLength={20}
                     value={formData.dni}
                     onChange={(e) => handleInputChange('dni', e.target.value)}
                     style={
@@ -242,7 +228,6 @@ export default function NuevoClienteModal({ isOpen, onClose, onClienteCreado, cl
                         ? { borderColor: '#ef4444', backgroundColor: 'rgba(254, 242, 242, 0.6)' }
                         : {}
                     }
-                    required
                   />
                 </div>
                 {fieldErrors.dni && (
@@ -254,7 +239,7 @@ export default function NuevoClienteModal({ isOpen, onClose, onClienteCreado, cl
 
               <div className="field-group">
                 <label style={{ color: fieldErrors.nombres ? '#dc2626' : undefined, fontWeight: 500 }}>
-                  Nombres *
+                  Nombres
                 </label>
                 <div className="input-group">
                   <User size={16} color={fieldErrors.nombres ? '#dc2626' : undefined} />
@@ -265,7 +250,6 @@ export default function NuevoClienteModal({ isOpen, onClose, onClienteCreado, cl
                     value={formData.nombres}
                     onChange={(e) => handleInputChange('nombres', e.target.value)}
                     style={fieldErrors.nombres ? { borderColor: '#ef4444', backgroundColor: 'rgba(254, 242, 242, 0.6)' } : {}}
-                    required
                   />
                 </div>
                 {fieldErrors.nombres && (
@@ -277,7 +261,7 @@ export default function NuevoClienteModal({ isOpen, onClose, onClienteCreado, cl
 
               <div className="field-group">
                 <label style={{ color: fieldErrors.apellidos ? '#dc2626' : undefined, fontWeight: 500 }}>
-                  Apellidos *
+                  Apellidos
                 </label>
                 <div className="input-group">
                   <User size={16} color={fieldErrors.apellidos ? '#dc2626' : undefined} />
@@ -288,7 +272,6 @@ export default function NuevoClienteModal({ isOpen, onClose, onClienteCreado, cl
                     value={formData.apellidos}
                     onChange={(e) => handleInputChange('apellidos', e.target.value)}
                     style={fieldErrors.apellidos ? { borderColor: '#ef4444', backgroundColor: 'rgba(254, 242, 242, 0.6)' } : {}}
-                    required
                   />
                 </div>
                 {fieldErrors.apellidos && (
