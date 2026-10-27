@@ -15,10 +15,12 @@ import {
   LogOut, 
   ShieldCheck,
   UserCheck,
-  X
+  X,
+  ChevronsLeft,
+  ChevronsRight
 } from 'lucide-react';
 
-export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpenSimulador, isOpen, onClose }) {
+export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpenSimulador, isOpen, onClose, isCollapsed = false, onToggleCollapse }) {
   const userRole = user?.rol?.toString()?.toLowerCase() || 'admin';
   const isAdmin = userRole === 'admin' || userRole === '1';
   const menuItems = isAdmin ? [
@@ -96,7 +98,21 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpe
         />
       )}
 
-      <aside className={`sidebar ${isOpen ? 'mobile-open' : ''}`}>
+      <aside className={`sidebar ${isOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
+        {/* Botón para contraer / expandir el menú (solo escritorio) */}
+        {onToggleCollapse && (
+          <button
+            type="button"
+            className="sidebar-collapse-btn"
+            onClick={onToggleCollapse}
+            title={isCollapsed ? 'Expandir menú' : 'Contraer menú'}
+            aria-label={isCollapsed ? 'Expandir menú lateral' : 'Contraer menú lateral'}
+            aria-expanded={!isCollapsed}
+          >
+            {isCollapsed ? <ChevronsRight size={15} /> : <ChevronsLeft size={15} />}
+          </button>
+        )}
+
         <div className="brand-header">
           <div className="brand-identity">
             <img src={logoImg} alt="FGR Préstamos & Cobranzas" className="brand-logo-img" />
@@ -120,6 +136,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpe
                 key={item.id}
                 className={`nav-item ${isActive ? 'active' : ''}`}
                 onClick={() => handleSelectTab(item.id)}
+                title={isCollapsed ? item.label : undefined}
                 style={item.highlight && !isActive ? { color: '#f87171' } : {}}
               >
                 <Icon size={19} color={item.highlight && !isActive ? '#f87171' : undefined} />
@@ -132,6 +149,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpe
             <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--sidebar-border)' }}>
               <button
                 className="btn sidebar-sim-btn"
+                title={isCollapsed ? 'Simulador Express' : undefined}
                 onClick={() => {
                   onOpenSimulador();
                   if (onClose) onClose();
@@ -146,7 +164,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpe
         </nav>
 
         <div className="sidebar-footer" style={{ marginTop: 'auto', paddingTop: '0.75rem' }}>
-          <div className="user-profile-badge">
+          <div className="user-profile-badge" title={isCollapsed ? (user?.nombresApellidos || user?.nombreUsuario || '') : undefined}>
             <div className="user-avatar">
               {user?.nombresApellidos ? user.nombresApellidos.charAt(0) : 'U'}
             </div>

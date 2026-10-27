@@ -103,10 +103,110 @@ body {
   display: flex;
   flex-direction: column;
   padding: 1.25rem 1rem;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s ease, padding 0.25s ease;
+  position: relative;
   z-index: 50;
   flex-shrink: 0;
   color: #F5EFE0;
+}
+
+/* Botón circular en el borde del sidebar para contraer / expandir */
+.sidebar-collapse-btn {
+  position: absolute;
+  top: 36px;
+  right: -13px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--black);
+  border: 1px solid var(--gold-600);
+  color: var(--gold-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 60;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-collapse-btn:hover {
+  background: var(--gold-gradient);
+  color: var(--black);
+  border-color: transparent;
+  transform: scale(1.08);
+}
+
+.sidebar-collapse-btn:focus-visible {
+  outline: 2px solid var(--gold-300);
+  outline-offset: 2px;
+}
+
+.nav-menu {
+  overflow-x: hidden;
+}
+
+.nav-item span,
+.sidebar-sim-btn span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modo contraído (solo íconos) — únicamente en escritorio */
+@media (min-width: 901px) {
+  .sidebar.collapsed {
+    width: 76px;
+    padding: 1.25rem 0.6rem;
+  }
+
+  .sidebar.collapsed .brand-header {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .sidebar.collapsed .brand-identity {
+    flex: 0 0 auto;
+    justify-content: center;
+  }
+
+  .sidebar.collapsed .brand-text {
+    display: none;
+  }
+
+  .sidebar.collapsed .brand-logo-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sidebar.collapsed .nav-item {
+    justify-content: center;
+    gap: 0;
+    padding: 0.7rem 0;
+  }
+
+  .sidebar.collapsed .nav-item:hover {
+    transform: none;
+  }
+
+  .sidebar.collapsed .nav-item span,
+  .sidebar.collapsed .sidebar-sim-btn span,
+  .sidebar.collapsed .user-info {
+    display: none;
+  }
+
+  .sidebar.collapsed .sidebar-sim-btn {
+    justify-content: center;
+    padding: 0.6rem 0;
+    gap: 0;
+  }
+
+  .sidebar.collapsed .user-profile-badge {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.6rem 0.25rem;
+  }
 }
 
 .brand-header {
@@ -1154,6 +1254,10 @@ tr.highlighted-row td:last-child {
 
   .sidebar-close-btn {
     display: flex;
+  }
+
+  .sidebar-collapse-btn {
+    display: none;
   }
 
   .sidebar {

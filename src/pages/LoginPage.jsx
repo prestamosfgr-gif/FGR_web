@@ -117,7 +117,6 @@ export default function LoginPage({ onLoginSuccess }) {
           </div>
           <h2 className="auth-title">Préstamos & Cobranzas</h2>
           <div className="auth-divider"><span /></div>
-          <p className="auth-subtitle">Sistema de Gestión de Préstamos y Cobranzas</p>
         </div>
 
         {successMessage && (
@@ -279,20 +278,6 @@ export default function LoginPage({ onLoginSuccess }) {
             <ArrowRight size={16} />
           </button>
         </form>
-
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(201, 154, 46, 0.18)' }}>
-          <button
-            type="button"
-            style={{ background: 'none', border: 'none', color: 'var(--gold-300)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}
-            onClick={() => {
-              setIsRegister(!isRegister);
-              setError('');
-              setFieldErrors({});
-            }}
-          >
-            {isRegister ? '¿Ya tiene cuenta? Iniciar Sesión' : '¿No tiene cuenta? Registrarse'}
-          </button>
-        </div>
       </div>
     </div>
   );

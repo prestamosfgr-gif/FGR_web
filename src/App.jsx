@@ -52,6 +52,26 @@ export default function App() {
   }, [activeTab]);
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  // Sidebar contraído (solo íconos) en escritorio; se recuerda entre sesiones
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('fgr_sidebar_collapsed') === '1';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem('fgr_sidebar_collapsed', next ? '1' : '0');
+      } catch {
+        // almacenamiento no disponible: solo se mantiene en memoria
+      }
+      return next;
+    });
+  };
   const [highlightId, setHighlightId] = useState(null);
 
   const handleNavigateTab = (tab, options = {}) => {
@@ -167,6 +187,8 @@ export default function App() {
         onOpenSimulador={() => setIsSimuladorOpen(true)}
         isOpen={isMobileOpen}
         onClose={() => setIsMobileOpen(false)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={toggleSidebar}
       />
 
       <main className="main-content">
