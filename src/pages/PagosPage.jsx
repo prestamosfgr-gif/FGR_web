@@ -169,7 +169,7 @@ export default function PagosPage({ onNuevoPago }) {
                     </td>
                     <td><strong>Préstamo #{pg.prestamoId}</strong></td>
                     <td>{pg.nombreCliente || pg.clienteNombre}</td>
-                    <td style={{ fontSize: '1rem', fontWeight: 800, color: '#059669', whiteSpace: 'nowrap' }}>
+                    <td style={{ fontSize: '1rem', fontWeight: 800, color: '#9A7412', whiteSpace: 'nowrap' }}>
                       S/. {parseFloat(pg.monto).toFixed(2)}
                       {(parseFloat(pg.montoCapital || 0) > 0 || parseFloat(pg.montoInteres || 0) > 0) && (
                         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>

@@ -394,14 +394,14 @@ export default function NuevoPagoModal({ isOpen, onClose, initialCuota = null, i
                             flexDirection: 'column',
                             gap: '2px',
                             background: isSelected
-                              ? 'rgba(16,185,129,0.12)'
+                              ? 'rgba(201, 154, 46,0.12)'
                               : isHighlighted
                                 ? 'var(--primary-light)'
                                 : 'transparent',
-                            color: isSelected ? '#059669' : isHighlighted ? 'var(--primary)' : 'var(--text-main)',
+                            color: isSelected ? '#9A7412' : isHighlighted ? 'var(--primary)' : 'var(--text-main)',
                             fontWeight: isSelected || isHighlighted ? 600 : 400,
                             borderLeft: isSelected
-                              ? '3px solid #059669'
+                              ? '3px solid #9A7412'
                               : isHighlighted
                                 ? '3px solid var(--primary)'
                                 : '3px solid transparent',
@@ -649,7 +649,7 @@ export default function NuevoPagoModal({ isOpen, onClose, initialCuota = null, i
                 </label>
                 <div style={{
                   padding: '0.65rem 0.85rem',
-                  background: 'rgba(5, 150, 105, 0.1)',
+                  background: 'rgba(201, 154, 46, 0.1)',
                   border: '1.5px solid var(--primary)',
                   borderRadius: '8px',
                   fontSize: '1.25rem',

@@ -111,8 +111,8 @@ export default function AuditoriaPage() {
                 </tr>
               ) : (
                 logsFiltrados.map((l) => {
-                  let badgeBg = 'rgba(5, 150, 105, 0.12)';
-                  let badgeColor = '#059669';
+                  let badgeBg = 'rgba(201, 154, 46, 0.12)';
+                  let badgeColor = '#9A7412';
                   if (l.tipo === 'warning') {
                     badgeBg = 'rgba(245, 158, 11, 0.15)';
                     badgeColor = '#d97706';

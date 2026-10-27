@@ -238,7 +238,7 @@ export default function PrestamosPage({ onNuevoPrestamo, onOpenSimulador, onCobr
                             className="btn btn-secondary btn-sm"
                             onClick={() => handleEditar(p)}
                             title="Editar Préstamo"
-                            style={{ color: '#059669', borderColor: 'rgba(5, 150, 105, 0.3)', padding: '0.45rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            style={{ color: '#9A7412', borderColor: 'rgba(201, 154, 46, 0.3)', padding: '0.45rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           >
                             <Edit size={15} />
                           </button>

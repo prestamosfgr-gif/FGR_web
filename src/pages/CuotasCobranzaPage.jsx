@@ -114,7 +114,7 @@ export default function CuotasCobranzaPage({ onCobrarCuota, refreshTrigger }) {
           </div>
         ) : currentList.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3.5rem 1.5rem', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1', margin: '0.5rem 0' }}>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem auto' }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#FBF6E6', color: '#9A7412', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem auto' }}>
               <CheckCircle2 size={26} />
             </div>
             <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
@@ -177,7 +177,7 @@ export default function CuotasCobranzaPage({ onCobrarCuota, refreshTrigger }) {
                             className="btn btn-secondary btn-sm"
                             onClick={() => handleWhatsApp(c)}
                             title="Enviar WhatsApp"
-                            style={{ color: '#059669', borderColor: 'rgba(5, 150, 105, 0.3)', padding: '0.35rem 0.55rem' }}
+                            style={{ color: '#9A7412', borderColor: 'rgba(201, 154, 46, 0.3)', padding: '0.35rem 0.55rem' }}
                           >
                             <MessageSquare size={13} />
                           </button>

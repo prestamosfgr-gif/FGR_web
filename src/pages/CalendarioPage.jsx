@@ -161,7 +161,7 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
                 onClick={() => setSelectedDay(dateStr)}
                 style={{
                   minHeight: '85px',
-                  background: isSelected ? 'rgba(5, 150, 105, 0.08)' : '#ffffff',
+                  background: isSelected ? 'rgba(201, 154, 46, 0.08)' : '#ffffff',
                   border: isSelected ? '2px solid var(--primary)' : isToday ? '2px solid #3b82f6' : '1px solid var(--border-color)',
                   borderRadius: '10px',
                   padding: '0.45rem',
@@ -170,7 +170,7 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   transition: 'all 0.15s ease',
-                  boxShadow: isSelected ? '0 4px 12px rgba(5, 150, 105, 0.15)' : 'none'
+                  boxShadow: isSelected ? '0 4px 12px rgba(201, 154, 46, 0.15)' : 'none'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -239,7 +239,7 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
 
               <div>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Total Cobrado:</span>
-                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#059669' }}>
+                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#9A7412' }}>
                   S/. {totalDiaCobrado.toFixed(2)}
                 </div>
               </div>
@@ -279,7 +279,7 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
                       </td>
                       <td><strong>Préstamo #{c.prestamoId}</strong></td>
                       <td>Cuota #{c.numeroCuota}</td>
-                      <td style={{ fontWeight: 800, color: c.estado === 'Pagado' ? '#059669' : '#0f172a', fontSize: '1rem' }}>
+                      <td style={{ fontWeight: 800, color: c.estado === 'Pagado' ? '#9A7412' : '#0f172a', fontSize: '1rem' }}>
                         S/. {parseFloat(c.montoCuota).toFixed(2)}
                       </td>
                       <td>
@@ -293,7 +293,7 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
                             className="btn btn-secondary btn-sm"
                             onClick={() => handleWhatsApp(c)}
                             title="Enviar recordatorio por WhatsApp"
-                            style={{ color: '#059669', borderColor: 'rgba(5, 150, 105, 0.3)' }}
+                            style={{ color: '#9A7412', borderColor: 'rgba(201, 154, 46, 0.3)' }}
                           >
                             <MessageSquare size={14} />
                             WhatsApp

@@ -110,10 +110,10 @@ export default function DetalleClienteModal({ isOpen, onClose, cliente, onActual
           {feedbackMsg && (
             <div style={{
               padding: '0.75rem 1rem',
-              background: feedbackMsg.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(5, 150, 105, 0.1)',
-              border: `1px solid ${feedbackMsg.type === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(5, 150, 105, 0.3)'}`,
+              background: feedbackMsg.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(201, 154, 46, 0.1)',
+              border: `1px solid ${feedbackMsg.type === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(201, 154, 46, 0.3)'}`,
               borderRadius: '8px',
-              color: feedbackMsg.type === 'error' ? '#dc2626' : '#059669',
+              color: feedbackMsg.type === 'error' ? '#dc2626' : '#9A7412',
               marginBottom: '1rem',
               fontSize: '0.85rem',
               display: 'flex',
@@ -139,7 +139,7 @@ export default function DetalleClienteModal({ isOpen, onClose, cliente, onActual
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={handleWhatsApp}
-                    style={{ padding: '1px 6px', color: '#059669', borderColor: 'rgba(5, 150, 105, 0.3)' }}
+                    style={{ padding: '1px 6px', color: '#9A7412', borderColor: 'rgba(201, 154, 46, 0.3)' }}
                     title="Enviar WhatsApp"
                   >
                     <MessageSquare size={12} />
@@ -250,7 +250,7 @@ export default function DetalleClienteModal({ isOpen, onClose, cliente, onActual
                         <td style={{ whiteSpace: 'nowrap', color: 'var(--primary)', fontWeight: 600 }}>
                           S/. {parseFloat(interesMes).toFixed(2)}
                         </td>
-                        <td style={{ whiteSpace: 'nowrap', color: (p.saldoPendienteTotal || 0) > 0 ? '#dc2626' : '#059669', fontWeight: 700 }}>
+                        <td style={{ whiteSpace: 'nowrap', color: (p.saldoPendienteTotal || 0) > 0 ? '#dc2626' : '#9A7412', fontWeight: 700 }}>
                           S/. {parseFloat(p.saldoPendienteTotal || 0).toFixed(2)}
                         </td>
                         <td>

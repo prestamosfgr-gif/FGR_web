@@ -60,11 +60,11 @@ export default function ReciboPagoModal({ isOpen, onClose, pago }) {
             {/* Header Voucher */}
             <div style={{ textAlign: 'center', borderBottom: '1px dashed #cbd5e1', paddingBottom: '1rem', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
-                <Banknote size={20} color="#059669" />
+                <Banknote size={20} color="#9A7412" />
                 <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', letterSpacing: '1px' }}>FGR PRÉSTAMOS</span>
               </div>
               <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase' }}>Sistema de Créditos & Cobranzas</div>
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#059669', marginTop: '0.4rem' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#9A7412', marginTop: '0.4rem' }}>
                 RECIBO N°: {pago.numeroOperacion}
               </div>
               <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Fecha: {pago.fechaPago}</div>
@@ -112,7 +112,7 @@ export default function ReciboPagoModal({ isOpen, onClose, pago }) {
                   <span>S/. {parseFloat(pago.montoCapital).toFixed(2)}</span>
                 </div>
               )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', fontSize: '1.15rem', fontWeight: 800, color: '#059669', paddingTop: '0.4rem', borderTop: '1px dotted #cbd5e1' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', fontSize: '1.15rem', fontWeight: 800, color: '#9A7412', paddingTop: '0.4rem', borderTop: '1px dotted #cbd5e1' }}>
                 <span>TOTAL ABONADO:</span>
                 <span>S/. {(parseFloat(pago.montoInteres || 0) + parseFloat(pago.montoCapital || 0)).toFixed(2)}</span>
               </div>
@@ -135,7 +135,7 @@ export default function ReciboPagoModal({ isOpen, onClose, pago }) {
 
             {/* Footer Voucher */}
             <div style={{ textAlign: 'center', borderTop: '1px dashed #cbd5e1', paddingTop: '0.75rem', fontSize: '0.75rem', color: '#64748b' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', color: '#059669', fontWeight: 600 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', color: '#9A7412', fontWeight: 600 }}>
                 <ShieldCheck size={14} />
                 Comprobante Oficial Emitido
               </div>
@@ -151,7 +151,7 @@ export default function ReciboPagoModal({ isOpen, onClose, pago }) {
           <button 
             className="btn btn-secondary" 
             onClick={handleShareWhatsApp} 
-            style={{ flex: 1, color: '#059669', borderColor: 'rgba(5, 150, 105, 0.3)', background: 'rgba(5, 150, 105, 0.08)' }}
+            style={{ flex: 1, color: '#9A7412', borderColor: 'rgba(201, 154, 46, 0.3)', background: 'rgba(201, 154, 46, 0.08)' }}
             title="Enviar recibo al cliente por WhatsApp"
           >
             <Share2 size={16} />

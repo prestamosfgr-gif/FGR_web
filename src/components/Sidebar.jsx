@@ -1,5 +1,5 @@
 import React from 'react';
-import logoImg from '../assets/logo.png';
+import logoImg from '../assets/FGR_OFICIAL.png';
 import { 
   LayoutDashboard, 
   Users, 
@@ -100,7 +100,10 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpe
         <div className="brand-header">
           <div className="brand-identity">
             <img src={logoImg} alt="FGR Préstamos & Cobranzas" className="brand-logo-img" />
-            <div className="brand-subtitle">Préstamos & Cobranzas</div>
+            <div className="brand-text">
+              <div className="brand-title">FGR</div>
+              <div className="brand-subtitle">Préstamos & Cobranzas</div>
+            </div>
           </div>
           {/* Botón para cerrar drawer en móvil */}
           <button className="sidebar-close-btn" onClick={onClose} aria-label="Cerrar menú">
@@ -117,23 +120,23 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpe
                 key={item.id}
                 className={`nav-item ${isActive ? 'active' : ''}`}
                 onClick={() => handleSelectTab(item.id)}
-                style={item.highlight && !isActive ? { color: '#dc2626' } : {}}
+                style={item.highlight && !isActive ? { color: '#f87171' } : {}}
               >
-                <Icon size={19} color={item.highlight && !isActive ? '#dc2626' : undefined} />
+                <Icon size={19} color={item.highlight && !isActive ? '#f87171' : undefined} />
                 <span>{item.label}</span>
               </button>
             );
           })}
 
           {!isAdmin && (
-            <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+            <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--sidebar-border)' }}>
               <button
-                className="btn btn-secondary w-full"
+                className="btn sidebar-sim-btn"
                 onClick={() => {
                   onOpenSimulador();
                   if (onClose) onClose();
                 }}
-                style={{ width: '100%', justifyContent: 'flex-start', background: 'rgba(5, 150, 105, 0.08)', borderColor: 'rgba(5, 150, 105, 0.3)', color: 'var(--primary)' }}
+                
               >
                 <Calculator size={18} />
                 <span>Simulador Express</span>
@@ -157,7 +160,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpe
             <button
               onClick={onLogout}
               title="Cerrar Sesión"
-              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+              className="sidebar-logout-btn"
             >
               <LogOut size={16} />
             </button>

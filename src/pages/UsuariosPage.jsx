@@ -190,17 +190,17 @@ export default function UsuariosPage() {
       {actionSuccess && (
         <div style={{
           padding: '0.85rem 1.25rem',
-          background: 'rgba(5, 150, 105, 0.1)',
-          border: '1px solid rgba(5, 150, 105, 0.3)',
+          background: 'rgba(201, 154, 46, 0.1)',
+          border: '1px solid rgba(201, 154, 46, 0.3)',
           borderRadius: '10px',
-          color: '#047857',
+          color: '#7A5A0C',
           fontSize: '0.88rem',
           fontWeight: '500',
           display: 'flex',
           alignItems: 'center',
           gap: '0.6rem'
         }}>
-          <CheckCircle2 size={18} color="#059669" style={{ flexShrink: 0 }} />
+          <CheckCircle2 size={18} color="#9A7412" style={{ flexShrink: 0 }} />
           <span>{actionSuccess}</span>
         </div>
       )}
@@ -335,8 +335,8 @@ export default function UsuariosPage() {
                             width: '38px',
                             height: '38px',
                             borderRadius: '10px',
-                            background: isAdmin ? 'rgba(124, 58, 237, 0.12)' : 'rgba(5, 150, 105, 0.12)',
-                            color: isAdmin ? '#7c3aed' : '#059669',
+                            background: isAdmin ? 'rgba(124, 58, 237, 0.12)' : 'rgba(201, 154, 46, 0.12)',
+                            color: isAdmin ? '#7c3aed' : '#9A7412',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -384,7 +384,7 @@ export default function UsuariosPage() {
                         S/. {(u.montoTotalColocado || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </td>
 
-                      <td style={{ fontWeight: 700, color: '#059669' }}>
+                      <td style={{ fontWeight: 700, color: '#9A7412' }}>
                         S/. {(u.montoCobradoMes || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </td>
 
@@ -399,7 +399,7 @@ export default function UsuariosPage() {
                             width: '6px', 
                             height: '6px', 
                             borderRadius: '50%', 
-                            backgroundColor: u.activo ? '#059669' : '#dc2626',
+                            backgroundColor: u.activo ? '#9A7412' : '#dc2626',
                             display: 'inline-block',
                             marginRight: '5px'
                           }}></span>

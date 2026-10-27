@@ -84,7 +84,7 @@ export default function ReportesPage() {
       title: 'Arqueo & Flujo de Caja Diaria',
       desc: 'Historial de aperturas, cierres, cobros en efectivo, cobros digitales y egresos operativos.',
       icon: Wallet,
-      color: '#059669',
+      color: '#9A7412',
       badge: 'Control Financiero'
     },
     {
@@ -99,7 +99,7 @@ export default function ReportesPage() {
       title: 'Consolidado General de Préstamos',
       desc: 'Capital dispersado, tasas de interés, número de cuotas, saldo deudor y rentabilidad.',
       icon: Banknote,
-      color: '#10b981'
+      color: '#C99A2E'
     },
     {
       id: 'pagos',
@@ -181,7 +181,7 @@ export default function ReportesPage() {
                     onClick={() => handleExport(rep.id, 'excel')}
                     disabled={isExpExcel}
                   >
-                    <FileSpreadsheet size={14} style={{ color: '#059669' }} />
+                    <FileSpreadsheet size={14} style={{ color: '#9A7412' }} />
                     {isExpExcel ? '...' : 'Excel'}
                   </button>
 

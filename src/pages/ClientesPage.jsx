@@ -260,10 +260,10 @@ export default function ClientesPage({ onNuevoCliente, refreshTrigger }) {
                               onClick={() => handleWhatsAppDirecto(c)}
                               title="Abrir chat de WhatsApp"
                               style={{
-                                background: 'rgba(5, 150, 105, 0.1)',
-                                border: '1px solid rgba(5, 150, 105, 0.3)',
+                                background: 'rgba(201, 154, 46, 0.1)',
+                                border: '1px solid rgba(201, 154, 46, 0.3)',
                                 borderRadius: '4px',
-                                color: '#059669',
+                                color: '#9A7412',
                                 cursor: 'pointer',
                                 padding: '2px 4px',
                                 display: 'flex',

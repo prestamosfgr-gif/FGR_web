@@ -145,10 +145,10 @@ export default function DetallePrestamoModal({ isOpen, onClose, prestamo, onCobr
             {(prestamo.estado === 'Pagado' || (parseFloat(saldoCapVigente || 0) <= 0 && prestamo.estado !== 'Cancelado')) && (
               <div style={{
                 padding: '0.65rem 1rem',
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
+                background: 'rgba(201, 154, 46, 0.1)',
+                border: '1px solid rgba(201, 154, 46, 0.3)',
                 borderRadius: '8px',
-                color: '#059669',
+                color: '#9A7412',
                 marginBottom: '1rem',
                 fontSize: '0.85rem',
                 display: 'flex',

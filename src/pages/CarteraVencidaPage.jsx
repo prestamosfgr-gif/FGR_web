@@ -317,7 +317,7 @@ export default function CarteraVencidaPage({ onCobrarCuota, onRefinanciar, highl
                             className="btn btn-sm btn-secondary"
                             onClick={() => handleWhatsAppCobranza(c)}
                             title="Enviar mensaje de cobranza por WhatsApp"
-                            style={{ color: '#059669', borderColor: 'rgba(5, 150, 105, 0.3)', background: 'rgba(5, 150, 105, 0.08)', padding: '0.35rem 0.55rem' }}
+                            style={{ color: '#9A7412', borderColor: 'rgba(201, 154, 46, 0.3)', background: 'rgba(201, 154, 46, 0.08)', padding: '0.35rem 0.55rem' }}
                           >
                             <MessageSquare size={14} />
                             WhatsApp

@@ -25,9 +25,9 @@ export default function ToastNotification({ notification, onClose, autoCloseTime
     success: {
       icon: CheckCircle2,
       bg: 'rgba(236, 253, 245, 0.98)',
-      border: '#a7f3d0',
-      color: '#065f46',
-      iconColor: '#059669'
+      border: '#EAD69A',
+      color: '#5E450A',
+      iconColor: '#9A7412'
     },
     error: {
       icon: AlertCircle,

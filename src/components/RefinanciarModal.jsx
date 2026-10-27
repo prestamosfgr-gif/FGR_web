@@ -172,12 +172,12 @@ export default function RefinanciarModal({ isOpen, onClose, prestamo, onRefinanc
                 <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Se liquidará automáticamente</div>
               </div>
 
-              <div style={{ background: '#ecfdf5', padding: '0.6rem 0.9rem', borderRadius: '8px', border: '1px solid #a7f3d0' }}>
-                <span style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 700 }}>DINERO NETO A ENTREGAR</span>
-                <div style={{ fontWeight: 800, color: '#059669', fontSize: '1.25rem' }}>
+              <div style={{ background: '#FBF6E6', padding: '0.6rem 0.9rem', borderRadius: '8px', border: '1px solid #EAD69A' }}>
+                <span style={{ fontSize: '0.75rem', color: '#7A5A0C', fontWeight: 700 }}>DINERO NETO A ENTREGAR</span>
+                <div style={{ fontWeight: 800, color: '#9A7412', fontSize: '1.25rem' }}>
                   S/. {dineroNetoAEntregar.toFixed(2)}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#047857' }}>Efectivo libre para el cliente</div>
+                <div style={{ fontSize: '0.75rem', color: '#7A5A0C' }}>Efectivo libre para el cliente</div>
               </div>
             </div>
 
@@ -295,8 +295,8 @@ export default function RefinanciarModal({ isOpen, onClose, prestamo, onRefinanc
 
             {/* Tarjeta Resumen Financiero en Vivo - Plazo Abierto */}
             <div style={{
-              background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(5, 150, 105, 0.02))',
-              border: '1.5px solid rgba(5, 150, 105, 0.25)',
+              background: 'linear-gradient(135deg, rgba(201, 154, 46, 0.08), rgba(201, 154, 46, 0.02))',
+              border: '1.5px solid rgba(201, 154, 46, 0.25)',
               borderRadius: '12px',
               padding: '1rem 1.25rem',
               marginBottom: '1rem'
@@ -305,7 +305,7 @@ export default function RefinanciarModal({ isOpen, onClose, prestamo, onRefinanc
                 <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   Resumen de la Renovación
                 </span>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.15)', color: 'var(--primary)', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(201, 154, 46, 0.15)', color: 'var(--primary)', fontWeight: 700 }}>
                   Sin cuotas • Tiempo ilimitado
                 </span>
               </div>
@@ -327,16 +327,16 @@ export default function RefinanciarModal({ isOpen, onClose, prestamo, onRefinanc
                 </div>
                 <div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Dinero Neto a Entregar:</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#059669' }}>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#9A7412' }}>
                     S/. {dineroNetoAEntregar.toFixed(2)}
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: '#059669' }}>Efectivo libre en mano</div>
+                  <div style={{ fontSize: '0.7rem', color: '#9A7412' }}>Efectivo libre en mano</div>
                 </div>
               </div>
               <div style={{
                 marginTop: '0.75rem',
                 paddingTop: '0.75rem',
-                borderTop: '1px solid rgba(5, 150, 105, 0.15)',
+                borderTop: '1px solid rgba(201, 154, 46, 0.15)',
                 fontSize: '0.78rem',
                 color: 'var(--text-muted)',
                 lineHeight: 1.4,

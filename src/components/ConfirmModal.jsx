@@ -57,11 +57,11 @@ export default function ConfirmModal({
     },
     success: {
       icon: CheckCircle,
-      iconBg: 'rgba(16, 185, 129, 0.12)',
-      iconColor: '#059669',
+      iconBg: 'rgba(201, 154, 46, 0.12)',
+      iconColor: '#9A7412',
       btnClass: 'btn btn-success',
-      badgeBg: '#ecfdf5',
-      badgeColor: '#059669'
+      badgeBg: '#FBF6E6',
+      badgeColor: '#9A7412'
     }
   };
 

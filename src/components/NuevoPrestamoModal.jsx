@@ -333,7 +333,7 @@ export default function NuevoPrestamoModal({ isOpen, onClose, initialData = null
                   Cliente Titular *
                 </label>
                 {clienteSeleccionado && !isSearchingCliente && (
-                  <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#9A7412', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Check size={14} /> Cliente Seleccionado
                   </span>
                 )}
@@ -348,9 +348,9 @@ export default function NuevoPrestamoModal({ isOpen, onClose, initialData = null
                     justifyContent: 'space-between',
                     padding: '0.65rem 0.95rem',
                     background: '#ffffff',
-                    border: '1.5px solid #059669',
+                    border: '1.5px solid #9A7412',
                     borderRadius: '8px',
-                    boxShadow: '0 1px 3px rgba(5, 150, 105, 0.1)',
+                    boxShadow: '0 1px 3px rgba(201, 154, 46, 0.1)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     gap: '0.75rem'
@@ -358,11 +358,11 @@ export default function NuevoPrestamoModal({ isOpen, onClose, initialData = null
                   title="Haga clic para cambiar o buscar otro cliente"
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = '#f8fafc';
-                    e.currentTarget.style.borderColor = '#047857';
+                    e.currentTarget.style.borderColor = '#7A5A0C';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = '#ffffff';
-                    e.currentTarget.style.borderColor = '#059669';
+                    e.currentTarget.style.borderColor = '#9A7412';
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
@@ -370,12 +370,12 @@ export default function NuevoPrestamoModal({ isOpen, onClose, initialData = null
                       width: '34px',
                       height: '34px',
                       borderRadius: '8px',
-                      background: 'rgba(5, 150, 105, 0.12)',
+                      background: 'rgba(201, 154, 46, 0.12)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
-                      color: '#059669'
+                      color: '#9A7412'
                     }}>
                       <User size={18} />
                     </div>
@@ -444,7 +444,7 @@ export default function NuevoPrestamoModal({ isOpen, onClose, initialData = null
                   <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                     <User
                       size={16}
-                      color={fieldErrors.clienteId ? '#dc2626' : '#059669'}
+                      color={fieldErrors.clienteId ? '#dc2626' : '#9A7412'}
                       style={{ position: 'absolute', left: '0.85rem', pointerEvents: 'none', zIndex: 2 }}
                     />
                     <input
@@ -555,18 +555,18 @@ export default function NuevoPrestamoModal({ isOpen, onClose, initialData = null
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 background: isHighlighted 
-                                  ? 'rgba(5, 150, 105, 0.12)' 
-                                  : (isSelected ? 'rgba(5, 150, 105, 0.05)' : 'transparent'),
+                                  ? 'rgba(201, 154, 46, 0.12)' 
+                                  : (isSelected ? 'rgba(201, 154, 46, 0.05)' : 'transparent'),
                                 borderRadius: '6px',
                                 marginBottom: '2px',
-                                border: isHighlighted ? '1px solid rgba(5, 150, 105, 0.3)' : '1px solid transparent',
+                                border: isHighlighted ? '1px solid rgba(201, 154, 46, 0.3)' : '1px solid transparent',
                                 transition: 'background 0.1s ease, border-color 0.1s ease'
                               }}
                             >
                               <div>
                                 <div style={{ 
                                   fontWeight: isHighlighted || isSelected ? 700 : 600, 
-                                  color: isHighlighted || isSelected ? '#059669' : '#1e293b', 
+                                  color: isHighlighted || isSelected ? '#9A7412' : '#1e293b', 
                                   fontSize: '0.9rem' 
                                 }}>
                                   {nom}
@@ -584,7 +584,7 @@ export default function NuevoPrestamoModal({ isOpen, onClose, initialData = null
                                   )}
                                 </div>
                               </div>
-                              {isSelected && <Check size={16} color="#059669" />}
+                              {isSelected && <Check size={16} color="#9A7412" />}
                             </div>
                           );
                         })
@@ -709,8 +709,8 @@ export default function NuevoPrestamoModal({ isOpen, onClose, initialData = null
 
             {/* Tarjeta Resumen Financiero en Vivo */}
             <div style={{
-              background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(5, 150, 105, 0.02))',
-              border: '1.5px solid rgba(5, 150, 105, 0.25)',
+              background: 'linear-gradient(135deg, rgba(201, 154, 46, 0.08), rgba(201, 154, 46, 0.02))',
+              border: '1.5px solid rgba(201, 154, 46, 0.25)',
               borderRadius: '12px',
               padding: '1rem 1.25rem',
               marginTop: '1.25rem',
@@ -720,7 +720,7 @@ export default function NuevoPrestamoModal({ isOpen, onClose, initialData = null
                 <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   Resumen de la Operación
                 </span>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.15)', color: 'var(--primary)', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(201, 154, 46, 0.15)', color: 'var(--primary)', fontWeight: 700 }}>
                   Sin fecha límite de capital
                 </span>
               </div>
@@ -744,7 +744,7 @@ export default function NuevoPrestamoModal({ isOpen, onClose, initialData = null
               <div style={{
                 marginTop: '0.75rem',
                 paddingTop: '0.75rem',
-                borderTop: '1px solid rgba(5, 150, 105, 0.15)',
+                borderTop: '1px solid rgba(201, 154, 46, 0.15)',
                 fontSize: '0.78rem',
                 color: 'var(--text-muted)',
                 lineHeight: 1.4,

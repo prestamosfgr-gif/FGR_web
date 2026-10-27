@@ -98,7 +98,7 @@ export default function DashboardPage({
   }));
 
   const pieChartData = graficos?.estadoPrestamos || [
-    { name: "En Curso", value: totalPrestamosActivos || 0, color: "#059669" },
+    { name: "En Curso", value: totalPrestamosActivos || 0, color: "#9A7412" },
     { name: "Pendiente", value: 0, color: "#2563eb" },
     { name: "Pagado", value: 0, color: "#7c3aed" },
     { name: "Vencido", value: cuotasVencidasCant || 0, color: "#dc2626" }
@@ -249,7 +249,7 @@ export default function DashboardPage({
               <button 
                 className="btn btn-secondary" 
                 onClick={() => onNavigateTab('caja')} 
-                style={{ justifyContent: 'center', color: '#059669', borderColor: 'rgba(5, 150, 105, 0.3)' }}
+                style={{ justifyContent: 'center', color: '#9A7412', borderColor: 'rgba(201, 154, 46, 0.3)' }}
               >
                 <Wallet size={16} />
                 Caja Diaria
@@ -307,7 +307,7 @@ export default function DashboardPage({
                     contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', fontSize: '0.82rem' }}
                     formatter={(val) => [`S/. ${Number(val).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`, 'Cobrado']}
                   />
-                  <Bar dataKey="ingresos" fill="#059669" radius={[6, 6, 0, 0]} maxBarSize={36} />
+                  <Bar dataKey="ingresos" fill="#9A7412" radius={[6, 6, 0, 0]} maxBarSize={36} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -337,7 +337,7 @@ export default function DashboardPage({
                     dataKey="value"
                   >
                     {pieChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color || '#059669'} />
+                      <Cell key={`cell-${index}`} fill={entry.color || '#9A7412'} />
                     ))}
                   </Pie>
                   <Tooltip 

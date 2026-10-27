@@ -205,7 +205,7 @@ export default function CajaDiariaPage() {
 
       {/* Banner de Saldo y Métricas de Caja */}
       <div className="kpi-grid">
-        <div className="kpi-card" style={{ borderLeft: estadoCaja?.cajaAbierta ? '4px solid #059669' : '4px solid #dc2626' }}>
+        <div className="kpi-card" style={{ borderLeft: estadoCaja?.cajaAbierta ? '4px solid #9A7412' : '4px solid #dc2626' }}>
           <div className="kpi-icon emerald">
             <Wallet size={24} />
           </div>
@@ -330,8 +330,8 @@ export default function CajaDiariaPage() {
                       <td style={{ fontSize: '0.82rem', whiteSpace: 'nowrap' }}>{m.fecha}</td>
                       <td>
                         <span className={`badge`} style={{
-                          background: esIngreso ? 'rgba(5, 150, 105, 0.12)' : 'rgba(220, 38, 38, 0.12)',
-                          color: esIngreso ? '#059669' : '#dc2626',
+                          background: esIngreso ? 'rgba(201, 154, 46, 0.12)' : 'rgba(220, 38, 38, 0.12)',
+                          color: esIngreso ? '#9A7412' : '#dc2626',
                           borderColor: 'transparent',
                           fontWeight: 700
                         }}>
@@ -349,7 +349,7 @@ export default function CajaDiariaPage() {
                       <td style={{
                         fontSize: '1.05rem',
                         fontWeight: 800,
-                        color: esIngreso ? '#059669' : '#dc2626',
+                        color: esIngreso ? '#9A7412' : '#dc2626',
                         whiteSpace: 'nowrap'
                       }}>
                         {esIngreso ? '+' : '-'} S/. {parseFloat(m.monto).toFixed(2)}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { User, Lock, Mail, ShieldCheck, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { authApi } from '../services/api';
 import { extractApiErrorDetails } from '../services/errorHandler';
-import logoImg from '../assets/logo.png';
+import logoImg from '../assets/FGR_OFICIAL.png';
 
 export default function LoginPage({ onLoginSuccess }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -118,16 +118,17 @@ export default function LoginPage({ onLoginSuccess }) {
             <img src={logoImg} alt="FGR Préstamos & Cobranzas" className="auth-logo-img" />
           </div>
           <h2 className="auth-title">Préstamos & Cobranzas</h2>
+          <div className="auth-divider"><span /></div>
           <p className="auth-subtitle">Sistema de Gestión de Préstamos y Cobranzas</p>
         </div>
 
         {successMessage && (
           <div style={{
             padding: '0.85rem 1rem',
-            background: 'rgba(5, 150, 105, 0.1)',
-            border: '1px solid rgba(5, 150, 105, 0.3)',
+            background: 'rgba(201, 154, 46, 0.1)',
+            border: '1px solid rgba(201, 154, 46, 0.3)',
             borderRadius: '8px',
-            color: '#059669',
+            color: '#F0D070',
             marginBottom: '1.25rem',
             fontSize: '0.85rem',
             lineHeight: '1.4',
@@ -147,7 +148,7 @@ export default function LoginPage({ onLoginSuccess }) {
             background: 'rgba(239, 68, 68, 0.1)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: '8px',
-            color: '#dc2626',
+            color: '#f87171',
             marginBottom: '1.25rem',
             fontSize: '0.85rem',
             lineHeight: '1.4',
@@ -163,23 +164,23 @@ export default function LoginPage({ onLoginSuccess }) {
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="field-group" style={{ marginBottom: '1rem' }}>
-            <label style={{ color: fieldErrors.username ? '#dc2626' : undefined, fontWeight: 500 }}>
+            <label style={{ color: fieldErrors.username ? '#f87171' : undefined, fontWeight: 500 }}>
               Usuario *
             </label>
             <div className="input-group">
-              <User size={16} color={fieldErrors.username ? '#dc2626' : undefined} />
+              <User size={16} color={fieldErrors.username ? '#f87171' : undefined} />
               <input
                 type="text"
                 className="form-input"
                 placeholder="Ingrese su usuario o email"
                 value={username}
                 onChange={(e) => handleInputChange('username', setUsername, e.target.value)}
-                style={fieldErrors.username ? { borderColor: '#ef4444', backgroundColor: 'rgba(254, 242, 242, 0.6)' } : {}}
+                style={fieldErrors.username ? { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' } : {}}
                 required
               />
             </div>
             {fieldErrors.username && (
-              <span style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: '4px', display: 'block', fontWeight: 500 }}>
+              <span style={{ color: '#f87171', fontSize: '0.75rem', marginTop: '4px', display: 'block', fontWeight: 500 }}>
                 ❌ {fieldErrors.username}
               </span>
             )}
@@ -188,46 +189,46 @@ export default function LoginPage({ onLoginSuccess }) {
           {isRegister && (
             <>
               <div className="field-group" style={{ marginBottom: '1rem' }}>
-                <label style={{ color: fieldErrors.nombresApellidos ? '#dc2626' : undefined, fontWeight: 500 }}>
+                <label style={{ color: fieldErrors.nombresApellidos ? '#f87171' : undefined, fontWeight: 500 }}>
                   Nombres y Apellidos *
                 </label>
                 <div className="input-group">
-                  <User size={16} color={fieldErrors.nombresApellidos ? '#dc2626' : undefined} />
+                  <User size={16} color={fieldErrors.nombresApellidos ? '#f87171' : undefined} />
                   <input
                     type="text"
                     className="form-input"
                     placeholder="Ej. Carlos Mendoza"
                     value={nombresApellidos}
                     onChange={(e) => handleInputChange('nombresApellidos', setNombresApellidos, e.target.value)}
-                    style={fieldErrors.nombresApellidos ? { borderColor: '#ef4444', backgroundColor: 'rgba(254, 242, 242, 0.6)' } : {}}
+                    style={fieldErrors.nombresApellidos ? { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' } : {}}
                     required
                   />
                 </div>
                 {fieldErrors.nombresApellidos && (
-                  <span style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: '4px', display: 'block', fontWeight: 500 }}>
+                  <span style={{ color: '#f87171', fontSize: '0.75rem', marginTop: '4px', display: 'block', fontWeight: 500 }}>
                     ❌ {fieldErrors.nombresApellidos}
                   </span>
                 )}
               </div>
 
               <div className="field-group" style={{ marginBottom: '1rem' }}>
-                <label style={{ color: fieldErrors.email ? '#dc2626' : undefined, fontWeight: 500 }}>
+                <label style={{ color: fieldErrors.email ? '#f87171' : undefined, fontWeight: 500 }}>
                   Correo Electrónico *
                 </label>
                 <div className="input-group">
-                  <Mail size={16} color={fieldErrors.email ? '#dc2626' : undefined} />
+                  <Mail size={16} color={fieldErrors.email ? '#f87171' : undefined} />
                   <input
                     type="email"
                     className="form-input"
                     placeholder="correo@ejemplo.com"
                     value={email}
                     onChange={(e) => handleInputChange('email', setEmail, e.target.value)}
-                    style={fieldErrors.email ? { borderColor: '#ef4444', backgroundColor: 'rgba(254, 242, 242, 0.6)' } : {}}
+                    style={fieldErrors.email ? { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' } : {}}
                     required
                   />
                 </div>
                 {fieldErrors.email && (
-                  <span style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: '4px', display: 'block', fontWeight: 500 }}>
+                  <span style={{ color: '#f87171', fontSize: '0.75rem', marginTop: '4px', display: 'block', fontWeight: 500 }}>
                     ❌ {fieldErrors.email}
                   </span>
                 )}
@@ -251,23 +252,23 @@ export default function LoginPage({ onLoginSuccess }) {
           )}
 
           <div className="field-group" style={{ marginBottom: '1.5rem' }}>
-            <label style={{ color: fieldErrors.password ? '#dc2626' : undefined, fontWeight: 500 }}>
+            <label style={{ color: fieldErrors.password ? '#f87171' : undefined, fontWeight: 500 }}>
               Contraseña *
             </label>
             <div className="input-group">
-              <Lock size={16} color={fieldErrors.password ? '#dc2626' : undefined} />
+              <Lock size={16} color={fieldErrors.password ? '#f87171' : undefined} />
               <input
                 type="password"
                 className="form-input"
                 placeholder="Ingrese su contraseña"
                 value={password}
                 onChange={(e) => handleInputChange('password', setPassword, e.target.value)}
-                style={fieldErrors.password ? { borderColor: '#ef4444', backgroundColor: 'rgba(254, 242, 242, 0.6)' } : {}}
+                style={fieldErrors.password ? { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' } : {}}
                 required
               />
             </div>
             {fieldErrors.password && (
-              <span style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: '4px', display: 'block', fontWeight: 500 }}>
+              <span style={{ color: '#f87171', fontSize: '0.75rem', marginTop: '4px', display: 'block', fontWeight: 500 }}>
                 ❌ {fieldErrors.password}
               </span>
             )}
@@ -279,10 +280,10 @@ export default function LoginPage({ onLoginSuccess }) {
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(201, 154, 46, 0.18)' }}>
           <button
             type="button"
-            style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}
+            style={{ background: 'none', border: 'none', color: 'var(--gold-300)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}
             onClick={() => {
               setIsRegister(!isRegister);
               setError('');
