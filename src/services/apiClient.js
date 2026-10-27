@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// URL base de la API backend desplegada en Render (https://appprestamosback-oficial.onrender.com)
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://appprestamosback-oficial.onrender.com';
+// URL base de la API backend desplegada en Render (https://fgr-backend-oficial-xyjo.onrender.com)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://fgr-backend-oficial-xyjo.onrender.com';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

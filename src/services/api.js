@@ -291,7 +291,7 @@ export const usuariosApi = {
 // --- REPORTES API ---
 export const reportesApi = {
   getDownloadUrl: (endpoint) => {
-    const baseUrl = import.meta.env.VITE_API_URL || 'https://appprestamosback-oficial.onrender.com';
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://fgr-backend-oficial-xyjo.onrender.com';
     return `${baseUrl}/api/Reportes/${endpoint}`;
   },
 
