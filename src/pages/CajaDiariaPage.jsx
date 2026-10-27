@@ -82,7 +82,7 @@ export default function CajaDiariaPage() {
       setMovimientos(movs || []);
     } catch (err) {
       console.error('Error cargando caja:', err);
-      setNotification({ type: 'error', message: 'No se pudo cargar la información de la caja.' });
+      setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'No se pudo cargar la información de la caja.' });
     } finally {
       setLoading(false);
     }
@@ -96,7 +96,7 @@ export default function CajaDiariaPage() {
       setNotification({ type: 'success', message: '¡Caja abierta exitosamente!' });
       loadCaja();
     } catch (err) {
-      setNotification({ type: 'error', message: 'Error al abrir la caja diaria.' });
+      setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'Error al abrir la caja diaria.' });
     }
   };
 
@@ -108,7 +108,7 @@ export default function CajaDiariaPage() {
       setNotification({ type: 'success', message: '¡Caja del día cerrada correctamente con arqueo final!' });
       loadCaja();
     } catch (err) {
-      setNotification({ type: 'error', message: 'Error al cerrar la caja del día.' });
+      setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'Error al cerrar la caja del día.' });
     } finally {
       setIsCerrando(false);
     }
@@ -135,7 +135,7 @@ export default function CajaDiariaPage() {
       setNotification({ type: 'success', message: 'Movimiento de caja registrado exitosamente.' });
       loadCaja();
     } catch (err) {
-      setNotification({ type: 'error', message: 'Error al registrar el movimiento en caja.' });
+      setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'Error al registrar el movimiento en caja.' });
     }
   };
 
@@ -171,7 +171,7 @@ export default function CajaDiariaPage() {
       loadCaja();
     } catch (err) {
       console.error(err);
-      setNotification({ type: 'error', message: 'No se pudo actualizar el movimiento en caja.' });
+      setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'No se pudo actualizar el movimiento en caja.' });
     } finally {
       setSavingMov(false);
     }
@@ -187,7 +187,7 @@ export default function CajaDiariaPage() {
       loadCaja();
     } catch (err) {
       console.error(err);
-      setNotification({ type: 'error', message: 'No se pudo eliminar el movimiento en caja.' });
+      setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'No se pudo eliminar el movimiento en caja.' });
     } finally {
       setDeletingMov(false);
     }

@@ -48,11 +48,11 @@ export default function PagosPage({ onNuevoPago }) {
     try {
       await pagosApi.deletePago(pagoAEliminar.id);
       setPagos(prev => prev.filter(p => p.id !== pagoAEliminar.id));
-      setNotification({ type: 'success', message: `Pago ${pagoAEliminar.numeroOperacion} eliminado correctamente.` });
+      setNotification({ type: 'success', message: `Pago ${pagoAEliminar.numeroOperacion} anulado: se revirtió su efecto en las cuotas y el capital.` });
       setPagoAEliminar(null);
     } catch (err) {
       console.error(err);
-      setNotification({ type: 'error', message: 'No se pudo eliminar el pago. Intente nuevamente.' });
+      setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'No se pudo eliminar el pago. Intente nuevamente.' });
     } finally {
       setDeleting(false);
     }
@@ -90,7 +90,7 @@ export default function PagosPage({ onNuevoPago }) {
       setPagoAEditar(null);
     } catch (err) {
       console.error(err);
-      setNotification({ type: 'error', message: 'No se pudo actualizar el pago. Intente nuevamente.' });
+      setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'No se pudo actualizar el pago. Intente nuevamente.' });
     } finally {
       setSaving(false);
     }

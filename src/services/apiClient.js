@@ -23,4 +23,21 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Interceptor de respuesta: si la sesión expiró o el usuario fue suspendido (401),
+// se limpia la sesión local y se vuelve a la pantalla de inicio de sesión.
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    const url = error?.config?.url || '';
+    const esLogin = url.includes('/api/Auth/login') || url.includes('/api/Auth/register');
+    if (status === 401 && !esLogin && localStorage.getItem('fgr_token')) {
+      localStorage.removeItem('fgr_token');
+      localStorage.removeItem('fgr_user');
+      window.location.reload();
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default apiClient;

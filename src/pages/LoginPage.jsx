@@ -12,7 +12,6 @@ export default function LoginPage({ onLoginSuccess }) {
   // Campos de registro
   const [email, setEmail] = useState('');
   const [nombresApellidos, setNombresApellidos] = useState('');
-  const [rol, setRol] = useState('Admin');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -70,8 +69,7 @@ export default function LoginPage({ onLoginSuccess }) {
           nombreUsuario: username.trim(),
           email: email.trim(),
           password,
-          nombresApellidos: nombresApellidos.trim(),
-          rol
+          nombresApellidos: nombresApellidos.trim()
         });
         setSuccessMessage(res?.mensaje || '¡Usuario registrado exitosamente! Ya puedes iniciar sesión con tus credenciales.');
         setIsRegister(false);
@@ -234,19 +232,21 @@ export default function LoginPage({ onLoginSuccess }) {
                 )}
               </div>
 
-              <div className="field-group" style={{ marginBottom: '1rem' }}>
-                <label>Rol del Sistema</label>
-                <div className="input-group">
-                  <ShieldCheck size={16} />
-                  <select
-                    className="form-select"
-                    value={rol}
-                    onChange={(e) => setRol(e.target.value)}
-                  >
-                    <option value="Admin">Admin (Creador)</option>
-                    <option value="Prestamista">Prestamista</option>
-                  </select>
-                </div>
+              <div style={{
+                display: 'flex',
+                gap: '0.5rem',
+                alignItems: 'flex-start',
+                marginBottom: '1rem',
+                padding: '0.7rem 0.85rem',
+                borderRadius: '8px',
+                border: '1px solid rgba(201, 154, 46, 0.3)',
+                background: 'rgba(201, 154, 46, 0.08)',
+                color: '#CFC6B0',
+                fontSize: '0.78rem',
+                lineHeight: 1.45
+              }}>
+                <ShieldCheck size={16} style={{ flexShrink: 0, marginTop: '1px', color: '#E0B050' }} />
+                <span>La cuenta se creará con rol <strong style={{ color: '#F0D070' }}>Prestamista</strong>. Los administradores solo pueden ser asignados por otro administrador.</span>
               </div>
             </>
           )}
