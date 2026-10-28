@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Wallet, 
   ArrowUpRight, 
@@ -29,6 +29,9 @@ export default function CajaDiariaPage() {
 
   // Modales internos
   const [isAperturaOpen, setIsAperturaOpen] = useState(false);
+  const [isAbriendo, setIsAbriendo] = useState(false);
+  // Bloqueo inmediato contra doble clic (el estado de React tarda un render en actualizarse)
+  const enviandoRef = useRef(false);
   const [montoAperturaInput, setMontoAperturaInput] = useState(1000);
   
   const [isMovimientoOpen, setIsMovimientoOpen] = useState(false);
@@ -90,6 +93,9 @@ export default function CajaDiariaPage() {
 
   const handleAbrirCaja = async (e) => {
     e.preventDefault();
+    if (enviandoRef.current) return;
+    enviandoRef.current = true;
+    setIsAbriendo(true);
     try {
       await cajaApi.abrirCaja(montoAperturaInput);
       setIsAperturaOpen(false);
@@ -97,6 +103,9 @@ export default function CajaDiariaPage() {
       loadCaja();
     } catch (err) {
       setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'Error al abrir la caja diaria.' });
+    } finally {
+      enviandoRef.current = false;
+      setIsAbriendo(false);
     }
   };
 
@@ -122,6 +131,8 @@ export default function CajaDiariaPage() {
       return;
     }
 
+    if (enviandoRef.current) return;
+    enviandoRef.current = true;
     try {
       await cajaApi.registrarMovimiento({ ...nuevoMov, monto: montoVal });
       setIsMovimientoOpen(false);
@@ -136,6 +147,8 @@ export default function CajaDiariaPage() {
       loadCaja();
     } catch (err) {
       setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'Error al registrar el movimiento en caja.' });
+    } finally {
+      enviandoRef.current = false;
     }
   };
 
@@ -439,8 +452,8 @@ export default function CajaDiariaPage() {
                 <button type="button" className="btn btn-secondary" onClick={() => setIsAperturaOpen(false)}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  Confirmar Apertura
+                <button type="submit" className="btn btn-primary" disabled={isAbriendo}>
+                  {isAbriendo ? 'Abriendo...' : 'Confirmar Apertura'}
                 </button>
               </div>
             </form>

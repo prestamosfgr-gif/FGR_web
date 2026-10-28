@@ -1,13 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Receipt, Search, Plus, CreditCard, Calendar, Printer, RefreshCw, Pencil, Trash2, X, DollarSign, FileText, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Receipt, Search, Plus, CreditCard, Calendar, Printer, RefreshCw, Pencil, Trash2, X, DollarSign, FileText, AlertTriangle, User, Filter } from 'lucide-react';
 import { pagosApi } from '../services/api';
 import ReciboPagoModal from '../components/ReciboPagoModal';
 import ToastNotification from '../components/ToastNotification';
+
+// Fecha local "YYYY-MM-DD" (hora de Perú) de un instante devuelto por la API en UTC
+const fechaLocal = (valor) => {
+  const d = valor instanceof Date ? valor : new Date(valor);
+  if (isNaN(d)) return '';
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+// "28/10/2026 17:40" en hora local
+const formatoFechaHora = (valor) => {
+  const d = new Date(valor);
+  if (isNaN(d)) return valor || '';
+  return d.toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+};
 
 export default function PagosPage({ onNuevoPago }) {
   const [pagos, setPagos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroTexto, setFiltroTexto] = useState('');
+  const [clienteFiltro, setClienteFiltro] = useState('');
+  const [fechaDesde, setFechaDesde] = useState('');
+  const [fechaHasta, setFechaHasta] = useState('');
   const [selectedPagoRecibo, setSelectedPagoRecibo] = useState(null);
   const [notification, setNotification] = useState(null);
 
@@ -34,12 +51,62 @@ export default function PagosPage({ onNuevoPago }) {
     }
   };
 
-  const filtered = pagos.filter(p =>
-    p.clienteNombre?.toLowerCase().includes(filtroTexto.toLowerCase()) ||
-    p.nombreCliente?.toLowerCase().includes(filtroTexto.toLowerCase()) ||
-    p.numeroOperacion?.toLowerCase().includes(filtroTexto.toLowerCase()) ||
-    p.prestamoId.toString().includes(filtroTexto)
-  );
+  // Clientes que tienen pagos registrados (para el filtro), en orden alfabético
+  const clientesOpciones = useMemo(() => {
+    const mapa = new Map();
+    pagos.forEach(p => {
+      const id = String(p.clienteId ?? p.nombreCliente ?? p.clienteNombre ?? '');
+      if (!id || mapa.has(id)) return;
+      mapa.set(id, { id, nombre: p.nombreCliente || p.clienteNombre || 'Sin nombre', dni: p.dniCliente || '' });
+    });
+    return [...mapa.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  }, [pagos]);
+
+  const texto = filtroTexto.trim().toLowerCase();
+  const filtered = pagos.filter(p => {
+    const coincideTexto = !texto ||
+      (p.nombreCliente || p.clienteNombre || '').toLowerCase().includes(texto) ||
+      (p.numeroOperacion || '').toLowerCase().includes(texto) ||
+      (p.dniCliente || '').includes(texto) ||
+      String(p.prestamoId ?? '').includes(texto);
+
+    const idCliente = String(p.clienteId ?? p.nombreCliente ?? p.clienteNombre ?? '');
+    const coincideCliente = !clienteFiltro || idCliente === clienteFiltro;
+
+    const dia = fechaLocal(p.fechaPago);
+    const coincideDesde = !fechaDesde || (dia && dia >= fechaDesde);
+    const coincideHasta = !fechaHasta || (dia && dia <= fechaHasta);
+
+    return coincideTexto && coincideCliente && coincideDesde && coincideHasta;
+  });
+
+  const hayFiltros = Boolean(filtroTexto || clienteFiltro || fechaDesde || fechaHasta);
+  const totalFiltrado = filtered.reduce((sum, p) => sum + (parseFloat(p.monto) || 0), 0);
+
+  const limpiarFiltros = () => {
+    setFiltroTexto('');
+    setClienteFiltro('');
+    setFechaDesde('');
+    setFechaHasta('');
+  };
+
+  // Atajos de rango de fechas
+  const aplicarRango = (tipo) => {
+    const hoy = new Date();
+    if (tipo === 'hoy') {
+      setFechaDesde(fechaLocal(hoy));
+      setFechaHasta(fechaLocal(hoy));
+    } else if (tipo === 'semana') {
+      const inicio = new Date(hoy);
+      const diaSemana = (hoy.getDay() + 6) % 7; // lunes = 0
+      inicio.setDate(hoy.getDate() - diaSemana);
+      setFechaDesde(fechaLocal(inicio));
+      setFechaHasta(fechaLocal(hoy));
+    } else if (tipo === 'mes') {
+      setFechaDesde(fechaLocal(new Date(hoy.getFullYear(), hoy.getMonth(), 1)));
+      setFechaHasta(fechaLocal(hoy));
+    }
+  };
 
   // ── ELIMINAR ─────────────────────────────────────────────────
   const handleDeleteConfirm = async () => {
@@ -104,7 +171,7 @@ export default function PagosPage({ onNuevoPago }) {
         <div className="panel-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
           <div className="panel-title">
             <Receipt className="text-primary" size={22} />
-            Historial Transaccional de Cobros &amp; Recibos ({pagos.length})
+            Historial Transaccional de Cobros &amp; Recibos ({hayFiltros ? `${filtered.length} de ${pagos.length}` : pagos.length})
           </div>
 
           <div className="search-filter-bar">
@@ -116,7 +183,13 @@ export default function PagosPage({ onNuevoPago }) {
                 placeholder="Buscar por Operación, Cliente o Préstamo..."
                 value={filtroTexto}
                 onChange={(e) => setFiltroTexto(e.target.value)}
+                style={{ paddingRight: filtroTexto ? '2.25rem' : undefined }}
               />
+              {filtroTexto && (
+                <button type="button" className="input-clear-btn" onClick={() => setFiltroTexto('')} title="Limpiar búsqueda" aria-label="Limpiar búsqueda">
+                  <X size={14} />
+                </button>
+              )}
             </div>
 
             <button className="btn btn-secondary" onClick={loadPagos} title="Actualizar Datos" disabled={loading} style={{ padding: '0.5rem' }}>
@@ -127,6 +200,81 @@ export default function PagosPage({ onNuevoPago }) {
               <Plus size={16} />
               Registrar Cobro
             </button>
+          </div>
+        </div>
+
+        {/* Filtros por cliente y rango de fechas */}
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'flex-end',
+          gap: '0.75rem',
+          marginBottom: '1rem',
+          paddingBottom: '1rem',
+          borderBottom: '1px solid var(--border-color)'
+        }}>
+          <div className="field-group" style={{ minWidth: '230px', flex: '1 1 230px', maxWidth: '340px' }}>
+            <label>Cliente</label>
+            <div className="input-group">
+              <User size={16} />
+              <select
+                className="form-select"
+                value={clienteFiltro}
+                onChange={(e) => setClienteFiltro(e.target.value)}
+                aria-label="Filtrar por cliente"
+              >
+                <option value="">Todos los clientes ({clientesOpciones.length})</option>
+                {clientesOpciones.map(c => (
+                  <option key={c.id} value={c.id}>{c.nombre}{c.dni ? ` — DNI ${c.dni}` : ''}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="field-group" style={{ width: '165px' }}>
+            <label>Desde</label>
+            <input
+              type="date"
+              className="form-input no-icon"
+              value={fechaDesde}
+              max={fechaHasta || undefined}
+              onChange={(e) => setFechaDesde(e.target.value)}
+              aria-label="Fecha desde"
+            />
+          </div>
+
+          <div className="field-group" style={{ width: '165px' }}>
+            <label>Hasta</label>
+            <input
+              type="date"
+              className="form-input no-icon"
+              value={fechaHasta}
+              min={fechaDesde || undefined}
+              onChange={(e) => setFechaHasta(e.target.value)}
+              aria-label="Fecha hasta"
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={() => aplicarRango('hoy')}>Hoy</button>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={() => aplicarRango('semana')}>Esta semana</button>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={() => aplicarRango('mes')}>Este mes</button>
+            {hayFiltros && (
+              <button type="button" className="btn btn-secondary btn-sm" onClick={limpiarFiltros} style={{ color: '#dc2626', borderColor: 'rgba(220, 38, 38, 0.3)' }}>
+                <X size={14} />
+                Limpiar filtros
+              </button>
+            )}
+          </div>
+
+          <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              <Filter size={12} style={{ verticalAlign: '-1px', marginRight: '4px' }} />
+              {filtered.length} {filtered.length === 1 ? 'cobro' : 'cobros'}
+            </div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)' }}>
+              S/. {totalFiltrado.toFixed(2)}
+            </div>
           </div>
         </div>
 
@@ -150,7 +298,7 @@ export default function PagosPage({ onNuevoPago }) {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                    No se registraron cobros con los términos ingresados.
+                    No hay cobros que coincidan con los filtros seleccionados.
                   </td>
                 </tr>
               ) : (
@@ -164,7 +312,7 @@ export default function PagosPage({ onNuevoPago }) {
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.82rem' }}>
                         <Calendar size={13} className="text-muted" />
-                        {pg.fechaPago}
+                        {formatoFechaHora(pg.fechaPago)}
                       </div>
                     </td>
                     <td><strong>Préstamo #{pg.prestamoId}</strong></td>
