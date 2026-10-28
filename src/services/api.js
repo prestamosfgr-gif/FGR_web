@@ -95,9 +95,10 @@ export const prestamosApi = {
     return res.data;
   },
 
-  getPrestamos: async (clienteId = null, estado = '') => {
+  getPrestamos: async (clienteId = null, estado = '', cobradorId = null) => {
     const params = {};
     if (clienteId) params.clienteId = clienteId;
+    if (cobradorId) params.cobradorId = cobradorId;
     if (estado && estado.trim() !== '') params.estado = estado.trim();
     const res = await apiClient.get('/api/Prestamos', { params });
     return res.data;
@@ -164,9 +165,10 @@ export const pagosApi = {
     return res.data;
   },
 
-  getPagos: async (prestamoId = null, clienteId = null) => {
+  getPagos: async (prestamoId = null, clienteId = null, cobradorId = null) => {
     const params = {};
     if (prestamoId) params.prestamoId = prestamoId;
+    if (cobradorId) params.cobradorId = cobradorId;
     if (clienteId) params.clienteId = clienteId;
     const res = await apiClient.get('/api/Pagos', { params });
     return res.data;

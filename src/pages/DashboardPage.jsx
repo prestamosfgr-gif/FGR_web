@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Users, 
   Banknote, 
@@ -17,7 +17,72 @@ import {
   Shield
 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend } from 'recharts';
-import { dashboardApi, cuotasApi, clientesApi, prestamosApi, cajaApi, usuariosApi } from '../services/api';
+import { dashboardApi, cuotasApi, clientesApi, prestamosApi, cajaApi, usuariosApi, pagosApi } from '../services/api';
+
+// ── Utilidades para la gráfica de recaudación ─────────────────────────
+const MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+const claveDia = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const inicioSemana = (d) => {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); // lunes
+  return x;
+};
+
+const PERIODOS = [
+  { id: 'diario', label: 'Diario', descripcion: 'Últimos 14 días' },
+  { id: 'semanal', label: 'Semanal', descripcion: 'Últimas 8 semanas' },
+  { id: 'mensual', label: 'Mensual', descripcion: 'Últimos 12 meses' },
+  { id: '6meses', label: '6 meses', descripcion: 'Últimos 6 meses' }
+];
+
+// Agrupa los pagos (fecha en hora local) según el periodo elegido
+const construirSerieRecaudacion = (pagos, periodo) => {
+  const hoy = new Date();
+  const buckets = [];
+
+  if (periodo === 'diario') {
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - i);
+      buckets.push({ clave: claveDia(d), mes: `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`, ingresos: 0 });
+    }
+  } else if (periodo === 'semanal') {
+    const lunesActual = inicioSemana(hoy);
+    for (let i = 7; i >= 0; i--) {
+      const d = new Date(lunesActual.getFullYear(), lunesActual.getMonth(), lunesActual.getDate() - i * 7);
+      buckets.push({ clave: claveDia(d), mes: `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`, ingresos: 0 });
+    }
+  } else {
+    const cantidad = periodo === 'mensual' ? 12 : 6;
+    for (let i = cantidad - 1; i >= 0; i--) {
+      const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+      const etiqueta = cantidad === 12 ? `${MESES_CORTOS[d.getMonth()]} ${String(d.getFullYear()).slice(2)}` : MESES_CORTOS[d.getMonth()];
+      buckets.push({ clave: `${d.getFullYear()}-${d.getMonth()}`, mes: etiqueta, ingresos: 0 });
+    }
+  }
+
+  const indice = new Map(buckets.map((b, i) => [b.clave, i]));
+  (pagos || []).forEach(p => {
+    const fecha = new Date(p.fechaPago);
+    if (isNaN(fecha)) return;
+    let clave;
+    if (periodo === 'diario') clave = claveDia(fecha);
+    else if (periodo === 'semanal') clave = claveDia(inicioSemana(fecha));
+    else clave = `${fecha.getFullYear()}-${fecha.getMonth()}`;
+    const i = indice.get(clave);
+    if (i !== undefined) buckets[i].ingresos += parseFloat(p.monto) || 0;
+  });
+
+  return buckets.map(b => ({ ...b, ingresos: Math.round(b.ingresos * 100) / 100 }));
+};
+
+// Estados de préstamo para la gráfica circular
+const ESTADOS_PRESTAMO = [
+  { key: 'EnCurso', name: 'En curso', color: '#9A7412' },
+  { key: 'Vencido', name: 'Vencido', color: '#dc2626' },
+  { key: 'Pagado', name: 'Pagado', color: '#16a34a' },
+  { key: 'Cancelado', name: 'Cancelado', color: '#94a3b8' },
+  { key: 'Pendiente', name: 'Pendiente', color: '#2563eb' }
+];
 
 export default function DashboardPage({ 
   user,
@@ -34,6 +99,9 @@ export default function DashboardPage({
   const [clientesCount, setClientesCount] = useState(0);
   const [prestamosCount, setPrestamosCount] = useState(0);
   const [estadoCaja, setEstadoCaja] = useState(null);
+  const [pagos, setPagos] = useState([]);
+  const [prestamos, setPrestamos] = useState([]);
+  const [periodo, setPeriodo] = useState('6meses');
   const [loading, setLoading] = useState(true);
 
   // Prestamista / Rol filter
@@ -58,20 +126,24 @@ export default function DashboardPage({
   const loadDashboard = async (cobradorId = null) => {
     setLoading(true);
     try {
-      const [kpiData, grafData, vencidasData, clientesList, prestamosList, cajaData] = await Promise.all([
+      const [kpiData, grafData, vencidasData, clientesList, prestamosList, cajaData, pagosList] = await Promise.all([
         dashboardApi.getKPIs(cobradorId).catch(() => null),
         dashboardApi.getGraficos(cobradorId).catch(() => null),
         cuotasApi.getCuotasVencidas(cobradorId).catch(() => []),
         clientesApi.getClientes('', 'Activo', cobradorId).catch(() => []),
-        prestamosApi.getPrestamos(null, 'EnCurso', cobradorId).catch(() => []),
-        cajaApi.getEstadoCaja().catch(() => null)
+        prestamosApi.getPrestamos(null, '', cobradorId).catch(() => []),
+        cajaApi.getEstadoCaja().catch(() => null),
+        pagosApi.getPagos(null, null, cobradorId).catch(() => [])
       ]);
 
       setKpis(kpiData);
       setGraficos(grafData);
       setCuotasVencidas(vencidasData || []);
       setClientesCount(Array.isArray(clientesList) ? clientesList.length : 0);
-      setPrestamosCount(Array.isArray(prestamosList) ? prestamosList.length : 0);
+      const listaPrestamos = Array.isArray(prestamosList) ? prestamosList : [];
+      setPrestamos(listaPrestamos);
+      setPrestamosCount(listaPrestamos.filter(p => p.estado === 'EnCurso' || p.estado === 'Vencido').length);
+      setPagos(Array.isArray(pagosList) ? pagosList : []);
       setEstadoCaja(cajaData);
     } catch (err) {
       console.error('Error cargando Dashboard:', err);
@@ -88,21 +160,20 @@ export default function DashboardPage({
   const montoVencido = kpis?.montoVencido ?? cuotasVencidas.reduce((sum, c) => sum + (c.montoCuota || 0), 0);
   const MESES_DEFAULT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
-  const rawMonthlyData = graficos?.pagosPorMes || graficos?.ingresosMensuales || [];
-  const barChartData = (rawMonthlyData.length > 0
-    ? rawMonthlyData
-    : MESES_DEFAULT.map(m => ({ mes: m, monto: 0 }))
-  ).map(d => ({
-    mes: d.mes,
-    ingresos: d.monto !== undefined ? d.monto : (d.ingresos || 0)
-  }));
+  // Recaudación según el periodo elegido (diario / semanal / mensual / 6 meses)
+  const barChartData = useMemo(() => construirSerieRecaudacion(pagos, periodo), [pagos, periodo]);
+  const totalPeriodo = barChartData.reduce((s, d) => s + d.ingresos, 0);
+  const periodoActual = PERIODOS.find(p => p.id === periodo);
 
-  const pieChartData = graficos?.estadoPrestamos || [
-    { name: "En Curso", value: totalPrestamosActivos || 0, color: "#9A7412" },
-    { name: "Pendiente", value: 0, color: "#2563eb" },
-    { name: "Pagado", value: 0, color: "#7c3aed" },
-    { name: "Vencido", value: cuotasVencidasCant || 0, color: "#dc2626" }
-  ];
+  // Distribución real por estado de cada préstamo, con porcentaje
+  const totalPrestamosGrafica = prestamos.length;
+  const pieChartData = ESTADOS_PRESTAMO
+    .map(e => {
+      const value = prestamos.filter(p => p.estado === e.key).length;
+      return { ...e, value, porcentaje: totalPrestamosGrafica > 0 ? (value / totalPrestamosGrafica) * 100 : 0 };
+    })
+    .filter(d => d.value > 0);
+  const fmtPct = (n) => `${n.toLocaleString('es-PE', { maximumFractionDigits: 1 })}%`;
 
   return (
     <div className="content-body">
@@ -272,9 +343,28 @@ export default function DashboardPage({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginTop: '1.25rem' }}>
         {/* Recaudación Mensual Bar Chart */}
         <div className="card-panel">
-          <div className="panel-title" style={{ marginBottom: '1rem', fontSize: '1.05rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Recaudación de Cobros (S/.)</span>
-            <span style={{ fontSize: '0.72rem', fontWeight: 500, color: 'var(--text-muted)' }}>Últimos 6 meses</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div>
+              <div className="panel-title" style={{ fontSize: '1.05rem' }}>Recaudación de Cobros (S/.)</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                {periodoActual?.descripcion} · Total: <strong style={{ color: 'var(--primary)' }}>S/. {totalPeriodo.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+              </div>
+            </div>
+            <div className="tab-switcher" role="tablist" aria-label="Periodo de la gráfica">
+              {PERIODOS.map(p => (
+                <button
+                  key={p.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={periodo === p.id}
+                  className={`tab-switcher-btn ${periodo === p.id ? 'active-primary' : ''}`}
+                  onClick={() => setPeriodo(p.id)}
+                  style={{ padding: '0.35rem 0.7rem', fontSize: '0.76rem' }}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
           </div>
           <div style={{ width: '100%', height: 260 }}>
             {loading ? (
@@ -284,7 +374,7 @@ export default function DashboardPage({
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart 
-                  data={barChartData.length > 6 ? barChartData.slice(-6) : barChartData}
+                  data={barChartData}
                   margin={{ top: 10, right: 10, left: -22, bottom: 0 }}
                 >
                   <XAxis 
@@ -293,7 +383,8 @@ export default function DashboardPage({
                     fontSize={11} 
                     tickLine={false} 
                     axisLine={{ stroke: '#e2e8f0' }}
-                    interval={0}
+                    interval={periodo === 'diario' || periodo === 'mensual' ? 'preserveStartEnd' : 0}
+                    minTickGap={4}
                   />
                   <YAxis 
                     stroke="#94a3b8" 
@@ -306,6 +397,7 @@ export default function DashboardPage({
                   <Tooltip 
                     contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', fontSize: '0.82rem' }}
                     formatter={(val) => [`S/. ${Number(val).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`, 'Cobrado']}
+                    labelFormatter={(label) => (periodo === 'semanal' ? `Semana del ${label}` : label)}
                   />
                   <Bar dataKey="ingresos" fill="#9A7412" radius={[6, 6, 0, 0]} maxBarSize={36} />
                 </BarChart>
@@ -324,26 +416,36 @@ export default function DashboardPage({
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: '0.85rem' }}>
                 Cargando datos...
               </div>
-            ) : (pieChartData.reduce((sum, item) => sum + (item.value || 0), 0) > 0) ? (
+            ) : totalPrestamosGrafica > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={pieChartData.filter(d => d.value > 0)}
+                    data={pieChartData}
                     cx="50%"
                     cy="45%"
                     innerRadius={50}
                     outerRadius={75}
-                    paddingAngle={4}
+                    paddingAngle={pieChartData.length > 1 ? 4 : 0}
                     dataKey="value"
+                    nameKey="name"
+                    label={({ porcentaje }) => fmtPct(porcentaje)}
+                    labelLine={false}
                   >
-                    {pieChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color || '#9A7412'} />
+                    {pieChartData.map((entry) => (
+                      <Cell key={entry.key} fill={entry.color} />
                     ))}
                   </Pie>
                   <Tooltip 
                     contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.82rem' }}
+                    formatter={(value, name, item) => [`${value} ${value === 1 ? 'préstamo' : 'préstamos'} (${fmtPct(item?.payload?.porcentaje || 0)})`, name]}
                   />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '0.78rem' }} />
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    iconType="circle"
+                    wrapperStyle={{ fontSize: '0.78rem' }}
+                    formatter={(value, entry) => `${value}: ${fmtPct(entry?.payload?.porcentaje || 0)} (${entry?.payload?.value ?? 0})`}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
