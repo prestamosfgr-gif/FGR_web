@@ -153,9 +153,9 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
             <span>Calendario Interactivo de Cobranzas</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div className="cal-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             {/* Filtro por cliente (escribiendo DNI o nombre) */}
-            <div style={{ marginRight: '0.5rem' }}>
+            <div className="cal-filter" style={{ marginRight: '0.5rem' }}>
               <ClienteFiltroCombobox
                 opciones={clientesOpciones.map(o => ({ value: o.clave, nombre: o.nombre, dni: o.dni }))}
                 value={clienteFiltro}
@@ -168,7 +168,7 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
               <ChevronLeft size={16} />
             </button>
 
-            <span style={{ fontWeight: 800, fontSize: '1.1rem', minWidth: '170px', textAlign: 'center', color: 'var(--text-main)' }}>
+            <span className="cal-month" style={{ fontWeight: 800, fontSize: '1.1rem', minWidth: '170px', textAlign: 'center', color: 'var(--text-main)' }}>
               {monthNames[month]} {year}
             </span>
 
@@ -210,9 +210,9 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
         )}
 
         {/* Calendar Grid Container */}
-        <div style={{
+        <div className="cal-grid" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(7, 1fr)',
+          gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
           gap: '6px',
           background: '#f8fafc',
           padding: '0.75rem',
@@ -222,14 +222,14 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
         }}>
           {/* Day Names */}
           {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((d, i) => (
-            <div key={i} style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.8rem', color: 'var(--text-muted)', padding: '0.35rem 0' }}>
+            <div key={i} className="cal-weekday" style={{ textAlign: 'center', fontWeight: 700, fontSize: '0.8rem', color: 'var(--text-muted)', padding: '0.35rem 0' }}>
               {d}
             </div>
           ))}
 
           {/* Empty cells before month start */}
           {Array.from({ length: startingDay }).map((_, i) => (
-            <div key={`empty-${i}`} style={{ minHeight: '85px', background: 'transparent' }} />
+            <div key={`empty-${i}`} className="cal-empty" style={{ minHeight: '85px', background: 'transparent' }} />
           ))}
 
           {/* Month Days */}
@@ -247,6 +247,7 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
             return (
               <div
                 key={dateStr}
+                className="cal-day"
                 onClick={() => setSelectedDay(dateStr)}
                 style={{
                   minHeight: '85px',
@@ -262,8 +263,8 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
                   boxShadow: isSelected ? '0 4px 12px rgba(201, 154, 46, 0.15)' : 'none'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{
+                <div className="cal-day-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="cal-day-num" style={{
                     fontWeight: isToday || isSelected ? 800 : 600,
                     fontSize: '0.85rem',
                     color: isToday ? '#2563eb' : 'var(--text-main)',
@@ -275,7 +276,7 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
                   </span>
 
                   {dayCuotas.length > 0 && (
-                    <span style={{
+                    <span className="cal-badge" style={{
                       fontSize: '0.68rem',
                       fontWeight: 700,
                       background: tieneVencidas ? '#fee2e2' : todasPagadas ? '#dcfce7' : '#e0f2fe',
@@ -283,15 +284,19 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
                       padding: '1px 5px',
                       borderRadius: '4px'
                     }}>
-                      {dayCuotas.length} {dayCuotas.length === 1 ? 'cuota' : 'cuotas'}
+                      {dayCuotas.length}<span className="cal-badge-word"> {dayCuotas.length === 1 ? 'cuota' : 'cuotas'}</span>
                     </span>
                   )}
                 </div>
 
                 {dayCuotas.length > 0 && (
                   <div style={{ marginTop: 'auto', paddingTop: '0.25rem' }}>
-                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: tieneVencidas ? '#dc2626' : 'var(--primary)' }}>
+                    <div className="cal-amount-full" style={{ fontSize: '0.78rem', fontWeight: 800, color: tieneVencidas ? '#dc2626' : 'var(--primary)' }}>
                       S/. {totalDia.toFixed(2)}
+                    </div>
+                    {/* Versión compacta para celulares */}
+                    <div className="cal-amount-short" style={{ display: 'none', fontWeight: 800, color: tieneVencidas ? '#dc2626' : 'var(--primary)' }}>
+                      {totalDia >= 1000 ? `${(totalDia / 1000).toFixed(1)}k` : Math.round(totalDia)}
                     </div>
                   </div>
                 )}
