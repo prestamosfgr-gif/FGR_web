@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Calendar as CalendarIcon, 
   ChevronLeft, 
@@ -15,11 +15,19 @@ import {
 } from 'lucide-react';
 import { cuotasApi, getWhatsAppLink } from '../services/api';
 
+// Fecha "YYYY-MM-DD" según la hora local (Perú), no UTC: evita que después de las 7 p. m. marque el día siguiente
+const fechaLocal = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+// Identificador del cliente de una cuota (DNI si existe, si no el nombre)
+const claveCliente = (c) => c.dniCliente || c.clienteDni || c.nombreCliente || c.clienteNombre || '';
+
 export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [cuotas, setCuotas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDay, setSelectedDay] = useState(fechaLocal());
+  const [clienteFiltro, setClienteFiltro] = useState('');
 
   useEffect(() => {
     loadCuotas();
@@ -56,8 +64,51 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
   const handleToday = () => {
     const today = new Date();
     setCurrentDate(today);
-    setSelectedDay(today.toISOString().split('T')[0]);
+    setSelectedDay(fechaLocal(today));
   };
+
+  // Lista de clientes que tienen cuotas, ordenada alfabéticamente
+  const clientesOpciones = useMemo(() => {
+    const mapa = new Map();
+    cuotas.forEach(c => {
+      const clave = claveCliente(c);
+      if (!clave || mapa.has(clave)) return;
+      mapa.set(clave, {
+        clave,
+        nombre: c.nombreCliente || c.clienteNombre || 'Sin nombre',
+        dni: c.dniCliente || c.clienteDni || ''
+      });
+    });
+    return [...mapa.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  }, [cuotas]);
+
+  const cuotasFiltradas = clienteFiltro ? cuotas.filter(c => claveCliente(c) === clienteFiltro) : cuotas;
+
+  // Al elegir un cliente, el calendario salta a su próximo vencimiento pendiente
+  const handleFiltroCliente = (clave) => {
+    setClienteFiltro(clave);
+    if (!clave) return;
+
+    const hoy = fechaLocal();
+    const delCliente = cuotas
+      .filter(c => claveCliente(c) === clave)
+      .map(c => ({ ...c, fecha: c.fechaVencimiento?.split('T')[0] || c.fechaVencimiento }))
+      .filter(c => c.fecha)
+      .sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+    const pendientes = delCliente.filter(c => c.estado !== 'Pagado');
+    const destino = pendientes.find(c => c.fecha >= hoy) || pendientes[0] || delCliente[delCliente.length - 1];
+    if (destino) {
+      const [y, m] = destino.fecha.split('-').map(Number);
+      setCurrentDate(new Date(y, m - 1, 1));
+      setSelectedDay(destino.fecha);
+    }
+  };
+
+  const clienteSeleccionado = clientesOpciones.find(o => o.clave === clienteFiltro);
+  const pendienteCliente = cuotasFiltradas
+    .filter(c => c.estado !== 'Pagado')
+    .reduce((sum, c) => sum + (parseFloat(c.saldoPendiente ?? c.montoCuota) || 0), 0);
 
   // Cálculos para la cuadrícula del calendario
   const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 = Domingo, 1 = Lunes, ...
@@ -67,7 +118,7 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
 
   // Mapear cuotas por fecha "YYYY-MM-DD"
   const cuotasPorFecha = {};
-  cuotas.forEach(c => {
+  cuotasFiltradas.forEach(c => {
     const fecha = c.fechaVencimiento?.split('T')[0] || c.fechaVencimiento;
     if (!cuotasPorFecha[fecha]) {
       cuotasPorFecha[fecha] = [];
@@ -101,7 +152,26 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
             <span>Calendario Interactivo de Cobranzas</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {/* Filtro por cliente */}
+            <div className="input-group" style={{ minWidth: '240px', marginRight: '0.5rem' }}>
+              <User size={16} />
+              <select
+                className="form-select"
+                value={clienteFiltro}
+                onChange={(e) => handleFiltroCliente(e.target.value)}
+                aria-label="Filtrar calendario por cliente"
+                disabled={loading}
+              >
+                <option value="">Todos los clientes ({clientesOpciones.length})</option>
+                {clientesOpciones.map(o => (
+                  <option key={o.clave} value={o.clave}>
+                    {o.nombre}{o.dni ? ` — DNI ${o.dni}` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <button className="btn btn-secondary btn-sm" onClick={handlePrevMonth}>
               <ChevronLeft size={16} />
             </button>
@@ -119,6 +189,33 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
             </button>
           </div>
         </div>
+
+        {/* Resumen del cliente filtrado */}
+        {clienteSeleccionado && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+            padding: '0.7rem 1rem',
+            marginBottom: '1rem',
+            borderRadius: '10px',
+            border: '1px solid rgba(201, 154, 46, 0.35)',
+            background: 'rgba(201, 154, 46, 0.08)'
+          }}>
+            <div style={{ fontSize: '0.88rem', color: 'var(--text-main)' }}>
+              Mostrando cuotas de <strong>{clienteSeleccionado.nombre}</strong>
+              {clienteSeleccionado.dni && <span style={{ color: 'var(--text-muted)' }}> · DNI {clienteSeleccionado.dni}</span>}
+              <span style={{ color: 'var(--text-muted)' }}> · {cuotasFiltradas.length} {cuotasFiltradas.length === 1 ? 'cuota' : 'cuotas'}</span>
+              <span style={{ color: 'var(--text-muted)' }}> · Pendiente: </span>
+              <strong style={{ color: 'var(--primary)' }}>S/. {pendienteCliente.toFixed(2)}</strong>
+            </div>
+            <button className="btn btn-secondary btn-sm" onClick={() => setClienteFiltro('')}>
+              Ver todos los clientes
+            </button>
+          </div>
+        )}
 
         {/* Calendar Grid Container */}
         <div style={{
@@ -149,7 +246,7 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
             const dayCuotas = cuotasPorFecha[dateStr] || [];
             const isSelected = selectedDay === dateStr;
-            const isToday = new Date().toISOString().split('T')[0] === dateStr;
+            const isToday = fechaLocal() === dateStr;
             
             const totalDia = dayCuotas.reduce((sum, c) => sum + (parseFloat(c.montoCuota) || 0), 0);
             const tieneVencidas = dayCuotas.some(c => c.estado === 'Vencido');
