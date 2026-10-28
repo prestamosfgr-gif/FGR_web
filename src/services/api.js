@@ -288,22 +288,9 @@ export const usuariosApi = {
   }
 };
 
-// --- REPORTES API ---
-export const reportesApi = {
-  getDownloadUrl: (endpoint) => {
-    const baseUrl = import.meta.env.VITE_API_URL || 'https://fgr-backend-oficial-xyjo.onrender.com';
-    return `${baseUrl}/api/Reportes/${endpoint}`;
-  },
-
-  exportarExcel: async (nombreArchivo, datosJson) => {
-    if (!datosJson || datosJson.length === 0) {
-      console.warn('No hay datos para exportar en este reporte.');
-      return false;
-    }
-
-    const XLSXStyle = await import('xlsx-js-style');
+// ── Construye una hoja de Excel con el diseño FGR (título, subtítulo, encabezados, filas y totales) ──
+const crearHojaReporte = (XLSXStyle, nombreArchivo, datosJson) => {
     const fecha = new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' });
-    const fechaArchivo = new Date().toISOString().slice(0, 10);
     const headers = Object.keys(datosJson[0]);
     const numCols = headers.length;
 
@@ -516,7 +503,26 @@ export const reportesApi = {
     // Fila congelada: congelar las 3 primeras filas + primera columna
     ws['!freeze'] = { xSplit: 0, ySplit: HEADER_ROW + 1 };
 
-    // ── Crear y guardar el workbook ───────────────────────────
+    return ws;
+};
+
+// --- REPORTES API ---
+export const reportesApi = {
+  getDownloadUrl: (endpoint) => {
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://fgr-backend-oficial-xyjo.onrender.com';
+    return `${baseUrl}/api/Reportes/${endpoint}`;
+  },
+
+  exportarExcel: async (nombreArchivo, datosJson) => {
+    if (!datosJson || datosJson.length === 0) {
+      console.warn('No hay datos para exportar en este reporte.');
+      return false;
+    }
+
+    const XLSXStyle = await import('xlsx-js-style');
+    const fechaArchivo = new Date().toISOString().slice(0, 10);
+    const ws = crearHojaReporte(XLSXStyle, nombreArchivo, datosJson);
+
     const wb = XLSXStyle.utils.book_new();
     wb.Props = {
       Title: nombreArchivo,
@@ -525,6 +531,35 @@ export const reportesApi = {
       CreatedDate: new Date(),
     };
     XLSXStyle.utils.book_append_sheet(wb, ws, 'Reporte');
+    XLSXStyle.writeFile(wb, `${nombreArchivo}_${fechaArchivo}.xlsx`);
+    return true;
+  },
+
+  /**
+   * Excel con varias hojas (p. ej. estado de cuenta individual de un cliente).
+   * hojas: [{ nombre: 'Préstamos', titulo: 'Préstamos de Juan Pérez', datos: [...] }]
+   */
+  exportarExcelHojas: async (nombreArchivo, hojas) => {
+    if (!hojas || hojas.length === 0) return false;
+
+    const XLSXStyle = await import('xlsx-js-style');
+    const fechaArchivo = new Date().toISOString().slice(0, 10);
+    const wb = XLSXStyle.utils.book_new();
+    wb.Props = {
+      Title: nombreArchivo,
+      Subject: 'Reporte FGR Finanzas',
+      Author: 'Sistema FGR',
+      CreatedDate: new Date(),
+    };
+
+    hojas.forEach((hoja) => {
+      const datos = hoja.datos && hoja.datos.length > 0 ? hoja.datos : [{ 'Información': 'Sin registros' }];
+      const ws = crearHojaReporte(XLSXStyle, hoja.titulo || hoja.nombre, datos);
+      // Excel limita el nombre de la hoja a 31 caracteres y no admite : \ / ? * [ ]
+      const nombreHoja = String(hoja.nombre || 'Hoja').replace(/[:\\/?*[\]]/g, '').slice(0, 31);
+      XLSXStyle.utils.book_append_sheet(wb, ws, nombreHoja);
+    });
+
     XLSXStyle.writeFile(wb, `${nombreArchivo}_${fechaArchivo}.xlsx`);
     return true;
   },

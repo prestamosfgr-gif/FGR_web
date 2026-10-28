@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FileSpreadsheet, 
   Download, 
@@ -10,10 +10,12 @@ import {
   Wallet, 
   History,
   CheckCircle2,
-  HandCoins
+  HandCoins,
+  User
 } from 'lucide-react';
 import { reportesApi, clientesApi, prestamosApi, pagosApi, cuotasApi, cajaApi, auditoriaApi } from '../services/api';
 import ToastNotification from '../components/ToastNotification';
+import ClienteFiltroCombobox from '../components/ClienteFiltroCombobox';
 
 // ── Formato de valores para los reportes ──────────────────────────────
 const num = (v) => {
@@ -37,6 +39,9 @@ const fechaHora = (v) => {
   return d.toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
+// Estado legible: 'EnCurso' se muestra como 'En curso'
+const estadoTxt = (e) => (e === 'EnCurso' ? 'En curso' : (e || ''));
+
 const nombreDe = (o) => o.nombreCliente || o.clienteNombre || o.nombreCompleto || `${o.nombres || ''} ${o.apellidos || ''}`.trim();
 
 // Convierte los datos de la API en filas con columnas claras y en español.
@@ -58,7 +63,7 @@ const construirFilas = (tipo, data, extra = {}) => {
           'Interés Mensual (S/.)': num(p.interesMensualActual ?? (p.montoDispersado * p.tasaInteres / 100)),
           'Interés Cobrado (S/.)': num(p.totalInteresPagado),
           'Capital Pendiente (S/.)': num(p.saldoCapital),
-          'Estado': p.estado || ''
+          'Estado': estadoTxt(p.estado)
         }));
     }
     case 'clientes':
@@ -68,7 +73,7 @@ const construirFilas = (tipo, data, extra = {}) => {
         'Teléfono': c.telefono || '',
         'Correo': c.correo || '',
         'Dirección': c.direccion || '',
-        'Estado': c.estado || '',
+        'Estado': estadoTxt(c.estado),
         'Estado Crediticio': c.estadoCrediticio || '',
         'Score': c.scoreCrediticio || '',
         'N° Préstamos': c.totalPrestamos ?? 0,
@@ -88,7 +93,7 @@ const construirFilas = (tipo, data, extra = {}) => {
         'Capital Amortizado (S/.)': num(p.totalCapitalAmortizado),
         'Capital Pendiente (S/.)': num(p.saldoCapital),
         'Deuda Total (S/.)': num(p.saldoPendienteTotal),
-        'Estado': p.estado || '',
+        'Estado': estadoTxt(p.estado),
         'Registrado por': p.creadoPorUsuario || ''
       }));
     case 'pagos':
@@ -117,7 +122,7 @@ const construirFilas = (tipo, data, extra = {}) => {
         'Pagado (S/.)': num(c.montoPagado),
         'Por Cobrar (S/.)': num(c.saldoPendiente ?? c.montoCuota),
         'Días de Atraso': c.diasAtraso ?? 0,
-        'Estado': c.estado || ''
+        'Estado': estadoTxt(c.estado)
       }));
     case 'caja':
       return data.map(m => ({
@@ -146,9 +151,121 @@ const construirFilas = (tipo, data, extra = {}) => {
   }
 };
 
+// ── Estado de cuenta individual: hojas del Excel de un solo cliente ─────────
+const construirEstadoCuenta = (historial) => {
+  const c = historial?.cliente || {};
+  const prestamos = historial?.prestamos || [];
+  const pagos = historial?.pagos || [];
+  const nombre = nombreDe(c);
+
+  const activos = prestamos.filter(p => p.estado === 'EnCurso' || p.estado === 'Vencido');
+  const totalPrestado = prestamos.reduce((s, p) => s + num(p.montoDispersado), 0);
+  const totalCobrado = pagos.reduce((s, p) => s + num(p.monto), 0);
+  const interesCobrado = pagos.reduce((s, p) => s + num(p.montoInteres), 0);
+  const capitalPendiente = activos.reduce((s, p) => s + num(p.saldoCapital), 0);
+  const deudaTotal = activos.reduce((s, p) => s + num(p.saldoPendienteTotal), 0);
+  const soles = (v) => `S/. ${num(v).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  const resumen = [
+    { 'Dato': 'Cliente', 'Valor': nombre },
+    { 'Dato': 'DNI', 'Valor': c.dni || '' },
+    { 'Dato': 'Teléfono', 'Valor': c.telefono || '' },
+    { 'Dato': 'Dirección', 'Valor': c.direccion || '' },
+    { 'Dato': 'Correo', 'Valor': c.correo || '' },
+    { 'Dato': 'Estado del cliente', 'Valor': c.estado || '' },
+    { 'Dato': 'Estado crediticio', 'Valor': `${c.estadoCrediticio || ''}${c.scoreCrediticio ? ` (${c.scoreCrediticio})` : ''}` },
+    { 'Dato': 'Cliente desde', 'Valor': fechaHora(c.fechaRegistro) },
+    { 'Dato': 'Préstamos otorgados', 'Valor': String(prestamos.length) },
+    { 'Dato': 'Préstamos activos', 'Valor': String(activos.length) },
+    { 'Dato': 'Total prestado', 'Valor': soles(totalPrestado) },
+    { 'Dato': 'Total cobrado', 'Valor': soles(totalCobrado) },
+    { 'Dato': 'Interés cobrado', 'Valor': soles(interesCobrado) },
+    { 'Dato': 'Capital pendiente', 'Valor': soles(capitalPendiente) },
+    { 'Dato': 'Deuda total actual', 'Valor': soles(deudaTotal) },
+  ];
+
+  const filasPrestamos = prestamos.map(p => ({
+    'N° Préstamo': p.id,
+    'Fecha del Préstamo': fechaDia(p.fechaDesembolso),
+    'Monto Prestado (S/.)': num(p.montoDispersado),
+    'Tasa Mensual (%)': num(p.tasaInteres),
+    'Interés Mensual (S/.)': num(num(p.saldoCapital) * num(p.tasaInteres) / 100),
+    'Interés Cobrado (S/.)': num(p.totalInteresPagado),
+    'Capital Pendiente (S/.)': num(p.saldoCapital),
+    'Deuda Total (S/.)': num(p.saldoPendienteTotal),
+    'Estado': estadoTxt(p.estado)
+  }));
+
+  const filasPagos = [...pagos]
+    .sort((a, b) => String(b.fechaPago).localeCompare(String(a.fechaPago)))
+    .map(p => ({
+      'Operación': p.numeroOperacion || '',
+      'Fecha y Hora': fechaHora(p.fechaPago),
+      'N° Préstamo': p.prestamoId,
+      'Monto Recibido (S/.)': num(p.monto),
+      'Interés (S/.)': num(p.montoInteres),
+      'Capital (S/.)': num(p.montoCapital),
+      'Método de Pago': p.metodoPago || '',
+      'Observaciones': p.observaciones || '',
+      'Cobrado por': p.usuarioNombre || ''
+    }));
+
+  const filasCuotas = prestamos.flatMap(p => (p.cuotas || []).map(cu => ({
+    'N° Préstamo': p.id,
+    'N° Cuota': cu.numeroCuota,
+    'Fecha de Vencimiento': fechaDia(cu.fechaVencimiento),
+    'Monto de la Cuota (S/.)': num(cu.montoCuota),
+    'Pagado (S/.)': num(cu.montoPagado),
+    'Por Cobrar (S/.)': num(cu.saldoPendiente),
+    'Días de Atraso': cu.diasAtraso ?? 0,
+    'Estado': estadoTxt(cu.estado)
+  })));
+
+  return {
+    nombre,
+    hojas: [
+      { nombre: 'Resumen', titulo: `Estado de Cuenta — ${nombre}`, datos: resumen },
+      { nombre: 'Préstamos', titulo: `Préstamos — ${nombre}`, datos: filasPrestamos },
+      { nombre: 'Pagos', titulo: `Pagos realizados — ${nombre}`, datos: filasPagos },
+      { nombre: 'Cuotas', titulo: `Cronograma de cuotas — ${nombre}`, datos: filasCuotas },
+    ]
+  };
+};
+
 export default function ReportesPage() {
   const [downloading, setDownloading] = useState('');
   const [notification, setNotification] = useState(null);
+
+  // Reporte individual por cliente
+  const [clientes, setClientes] = useState([]);
+  const [clienteIndividual, setClienteIndividual] = useState('');
+  const [generandoIndividual, setGenerandoIndividual] = useState(false);
+
+  useEffect(() => {
+    clientesApi.getClientes()
+      .then(data => setClientes(data || []))
+      .catch(err => console.warn('No se pudo cargar la lista de clientes:', err));
+  }, []);
+
+  const handleExportIndividual = async () => {
+    if (!clienteIndividual) {
+      setNotification({ type: 'warning', message: 'Seleccione un cliente para generar su estado de cuenta.' });
+      return;
+    }
+    setGenerandoIndividual(true);
+    try {
+      const historial = await clientesApi.getHistorialCliente(clienteIndividual);
+      const { nombre, hojas } = construirEstadoCuenta(historial);
+      const archivo = `Estado_de_Cuenta_${nombre.replace(/[^\p{L}\p{N}]+/gu, '_')}`;
+      await reportesApi.exportarExcelHojas(archivo, hojas);
+      setNotification({ type: 'success', message: `Estado de cuenta de ${nombre} descargado con éxito.` });
+    } catch (err) {
+      console.error(err);
+      setNotification({ type: 'error', message: err?.response?.data?.mensaje || 'No se pudo generar el estado de cuenta del cliente.' });
+    } finally {
+      setGenerandoIndividual(false);
+    }
+  };
 
   const handleExport = async (tipo, formato) => {
     setDownloading(`${tipo}-${formato}`);
@@ -294,6 +411,55 @@ export default function ReportesPage() {
         <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
           Genere descargas instantáneas en Excel (.xlsx) y CSV para análisis contable, auditoría y control de cartera.
         </p>
+
+        {/* Reporte individual por cliente */}
+        <div style={{
+          border: '1px solid rgba(201, 154, 46, 0.4)',
+          background: 'linear-gradient(135deg, rgba(201, 154, 46, 0.10), rgba(201, 154, 46, 0.02))',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.25rem 1.4rem',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: '1 1 300px' }}>
+            <div className="kpi-icon" style={{ background: 'var(--black)', color: 'var(--gold-300)' }}>
+              <User size={24} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)' }}>Estado de Cuenta Individual</h3>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                Excel de un solo cliente con su resumen, préstamos (fecha, monto e interés), pagos realizados y cronograma de cuotas.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flex: '1 1 380px', flexWrap: 'wrap' }}>
+            <ClienteFiltroCombobox
+              opciones={clientes.map(c => ({
+                value: c.id,
+                nombre: nombreDe(c),
+                dni: c.dni || '',
+                telefono: c.telefono || ''
+              }))}
+              value={clienteIndividual}
+              onChange={setClienteIndividual}
+              placeholder="Escriba DNI o Nombre del cliente..."
+              minWidth="240px"
+            />
+            <button
+              className="btn btn-primary"
+              onClick={handleExportIndividual}
+              disabled={generandoIndividual || !clienteIndividual}
+              title={clienteIndividual ? 'Descargar estado de cuenta en Excel' : 'Primero seleccione un cliente'}
+            >
+              <FileSpreadsheet size={16} />
+              {generandoIndividual ? 'Generando...' : 'Descargar Excel'}
+            </button>
+          </div>
+        </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
           {reportesConfig.map((rep) => {
