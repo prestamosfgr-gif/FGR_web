@@ -118,7 +118,6 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpe
             <img src={logoImg} alt="FGR Préstamos & Cobranzas" className="brand-logo-img" />
             <div className="brand-text">
               <div className="brand-title">FGR</div>
-              <div className="brand-subtitle">Préstamos & Cobranzas</div>
             </div>
           </div>
           {/* Botón para cerrar drawer en móvil */}
