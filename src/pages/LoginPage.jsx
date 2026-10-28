@@ -115,8 +115,6 @@ export default function LoginPage({ onLoginSuccess }) {
           <div className="auth-logo-wrapper">
             <img src={logoImg} alt="FGR Préstamos & Cobranzas" className="auth-logo-img" />
           </div>
-          <h2 className="auth-title">Préstamos & Cobranzas</h2>
-          <div className="auth-divider"><span /></div>
         </div>
 
         {successMessage && (
