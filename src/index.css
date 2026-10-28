@@ -799,11 +799,41 @@ body {
   align-items: center;
 }
 
-.input-group svg {
+.input-group > svg {
   position: absolute;
   left: 0.85rem;
   color: var(--text-muted);
   pointer-events: none;
+}
+
+/* Botón "x" para limpiar el texto de un buscador (dentro del campo, a la derecha) */
+.input-group .input-clear-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.input-group .input-clear-btn:hover {
+  background: var(--gold-100);
+  color: var(--gold-700);
+}
+
+.input-group .input-clear-btn:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 1px;
 }
 
 .form-input, .form-select, .form-textarea {
@@ -1176,7 +1206,7 @@ tr.highlighted-row td:last-child {
   color: #CFC6B0;
 }
 
-.auth-card .input-group svg {
+.auth-card .input-group > svg {
   color: var(--gold-500);
 }
 

@@ -150,26 +150,15 @@ export default function ClientesPage({ onNuevoCliente, refreshTrigger }) {
                 placeholder="Buscar por DNI, Nombres o Teléfono..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                style={{ paddingRight: busqueda ? '2rem' : undefined }}
+                style={{ paddingRight: busqueda ? '2.25rem' : undefined }}
               />
               {busqueda && (
                 <button
                   type="button"
                   onClick={() => setBusqueda('')}
                   title="Limpiar búsqueda"
-                  style={{
-                    position: 'absolute',
-                    right: '8px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--text-muted)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '2px'
-                  }}
+                  aria-label="Limpiar búsqueda"
+                  className="input-clear-btn"
                 >
                   <X size={14} />
                 </button>
