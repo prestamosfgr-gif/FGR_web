@@ -3,6 +3,7 @@ import { Receipt, Search, Plus, CreditCard, Calendar, Printer, RefreshCw, Pencil
 import { pagosApi } from '../services/api';
 import ReciboPagoModal from '../components/ReciboPagoModal';
 import ToastNotification from '../components/ToastNotification';
+import ClienteFiltroCombobox from '../components/ClienteFiltroCombobox';
 
 // Fecha local "YYYY-MM-DD" (hora de Perú) de un instante devuelto por la API en UTC
 const fechaLocal = (valor) => {
@@ -215,20 +216,12 @@ export default function PagosPage({ onNuevoPago }) {
         }}>
           <div className="field-group" style={{ minWidth: '230px', flex: '1 1 230px', maxWidth: '340px' }}>
             <label>Cliente</label>
-            <div className="input-group">
-              <User size={16} />
-              <select
-                className="form-select"
-                value={clienteFiltro}
-                onChange={(e) => setClienteFiltro(e.target.value)}
-                aria-label="Filtrar por cliente"
-              >
-                <option value="">Todos los clientes ({clientesOpciones.length})</option>
-                {clientesOpciones.map(c => (
-                  <option key={c.id} value={c.id}>{c.nombre}{c.dni ? ` — DNI ${c.dni}` : ''}</option>
-                ))}
-              </select>
-            </div>
+            <ClienteFiltroCombobox
+              opciones={clientesOpciones.map(c => ({ value: c.id, nombre: c.nombre, dni: c.dni }))}
+              value={clienteFiltro}
+              onChange={setClienteFiltro}
+              minWidth="230px"
+            />
           </div>
 
           <div className="field-group" style={{ width: '165px' }}>

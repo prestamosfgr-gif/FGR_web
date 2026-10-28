@@ -14,6 +14,7 @@ import {
   Eye
 } from 'lucide-react';
 import { cuotasApi, getWhatsAppLink } from '../services/api';
+import ClienteFiltroCombobox from '../components/ClienteFiltroCombobox';
 
 // Fecha "YYYY-MM-DD" según la hora local (Perú), no UTC: evita que después de las 7 p. m. marque el día siguiente
 const fechaLocal = (d = new Date()) =>
@@ -153,23 +154,14 @@ export default function CalendarioPage({ onCobrarCuota, onNavigateTab }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {/* Filtro por cliente */}
-            <div className="input-group" style={{ minWidth: '240px', marginRight: '0.5rem' }}>
-              <User size={16} />
-              <select
-                className="form-select"
+            {/* Filtro por cliente (escribiendo DNI o nombre) */}
+            <div style={{ marginRight: '0.5rem' }}>
+              <ClienteFiltroCombobox
+                opciones={clientesOpciones.map(o => ({ value: o.clave, nombre: o.nombre, dni: o.dni }))}
                 value={clienteFiltro}
-                onChange={(e) => handleFiltroCliente(e.target.value)}
-                aria-label="Filtrar calendario por cliente"
+                onChange={handleFiltroCliente}
                 disabled={loading}
-              >
-                <option value="">Todos los clientes ({clientesOpciones.length})</option>
-                {clientesOpciones.map(o => (
-                  <option key={o.clave} value={o.clave}>
-                    {o.nombre}{o.dni ? ` — DNI ${o.dni}` : ''}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <button className="btn btn-secondary btn-sm" onClick={handlePrevMonth}>
