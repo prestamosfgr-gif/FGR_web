@@ -9,10 +9,142 @@ import {
   TrendingUp, 
   Wallet, 
   History,
-  CheckCircle2
+  CheckCircle2,
+  HandCoins
 } from 'lucide-react';
 import { reportesApi, clientesApi, prestamosApi, pagosApi, cuotasApi, cajaApi, auditoriaApi } from '../services/api';
 import ToastNotification from '../components/ToastNotification';
+
+// ── Formato de valores para los reportes ──────────────────────────────
+const num = (v) => {
+  const n = parseFloat(v);
+  return isNaN(n) ? 0 : Math.round(n * 100) / 100;
+};
+
+// Fechas elegidas en calendario (desembolso, vencimiento): se toma el día tal cual, sin desfase de zona horaria
+const fechaDia = (v) => {
+  if (!v) return '';
+  const s = String(v).slice(0, 10);
+  const [y, m, d] = s.split('-');
+  return y && m && d ? `${d}/${m}/${y}` : String(v);
+};
+
+// Instantes reales (pagos, registros): se muestran en la hora local de Perú
+const fechaHora = (v) => {
+  if (!v) return '';
+  const d = new Date(v);
+  if (isNaN(d)) return String(v);
+  return d.toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+};
+
+const nombreDe = (o) => o.nombreCliente || o.clienteNombre || o.nombreCompleto || `${o.nombres || ''} ${o.apellidos || ''}`.trim();
+
+// Convierte los datos de la API en filas con columnas claras y en español.
+// Encabezados con "(S/.)" se suman en TOTALES; "(%)" se muestran como porcentaje.
+const construirFilas = (tipo, data, extra = {}) => {
+  switch (tipo) {
+    case 'prestamos-cliente': {
+      const telefonos = new Map((extra.clientes || []).map(c => [c.id, c.telefono]));
+      return [...data]
+        .sort((a, b) => nombreDe(a).localeCompare(nombreDe(b), 'es') || String(a.fechaDesembolso).localeCompare(String(b.fechaDesembolso)))
+        .map(p => ({
+          'Cliente': nombreDe(p),
+          'DNI': p.dniCliente || '',
+          'Teléfono': telefonos.get(p.clienteId) || '',
+          'N° Préstamo': p.id,
+          'Fecha del Préstamo': fechaDia(p.fechaDesembolso),
+          'Monto Prestado (S/.)': num(p.montoDispersado),
+          'Tasa Mensual (%)': num(p.tasaInteres),
+          'Interés Mensual (S/.)': num(p.interesMensualActual ?? (p.montoDispersado * p.tasaInteres / 100)),
+          'Interés Cobrado (S/.)': num(p.totalInteresPagado),
+          'Capital Pendiente (S/.)': num(p.saldoCapital),
+          'Estado': p.estado || ''
+        }));
+    }
+    case 'clientes':
+      return data.map(c => ({
+        'DNI': c.dni || '',
+        'Cliente': nombreDe(c),
+        'Teléfono': c.telefono || '',
+        'Correo': c.correo || '',
+        'Dirección': c.direccion || '',
+        'Estado': c.estado || '',
+        'Estado Crediticio': c.estadoCrediticio || '',
+        'Score': c.scoreCrediticio || '',
+        'N° Préstamos': c.totalPrestamos ?? 0,
+        'Deuda Actual (S/.)': num(c.deudaTotal),
+        'Fecha de Registro': fechaHora(c.fechaRegistro)
+      }));
+    case 'prestamos':
+      return data.map(p => ({
+        'N° Préstamo': p.id,
+        'Cliente': nombreDe(p),
+        'DNI': p.dniCliente || '',
+        'Fecha del Préstamo': fechaDia(p.fechaDesembolso),
+        'Monto Prestado (S/.)': num(p.montoDispersado),
+        'Tasa Mensual (%)': num(p.tasaInteres),
+        'Interés Mensual (S/.)': num(p.interesMensualActual),
+        'Interés Cobrado (S/.)': num(p.totalInteresPagado),
+        'Capital Amortizado (S/.)': num(p.totalCapitalAmortizado),
+        'Capital Pendiente (S/.)': num(p.saldoCapital),
+        'Deuda Total (S/.)': num(p.saldoPendienteTotal),
+        'Estado': p.estado || '',
+        'Registrado por': p.creadoPorUsuario || ''
+      }));
+    case 'pagos':
+      return data.map(p => ({
+        'Operación': p.numeroOperacion || '',
+        'Fecha y Hora': fechaHora(p.fechaPago),
+        'N° Préstamo': p.prestamoId,
+        'Cliente': nombreDe(p),
+        'DNI': p.dniCliente || '',
+        'Monto Recibido (S/.)': num(p.monto),
+        'Interés (S/.)': num(p.montoInteres),
+        'Capital (S/.)': num(p.montoCapital),
+        'Método de Pago': p.metodoPago || '',
+        'Observaciones': p.observaciones || '',
+        'Cobrado por': p.usuarioNombre || ''
+      }));
+    case 'cuotas-vencidas':
+    case 'cuotas-por-vencer':
+      return data.map(c => ({
+        'N° Préstamo': c.prestamoId,
+        'N° Cuota': c.numeroCuota,
+        'Cliente': nombreDe(c),
+        'DNI': c.dniCliente || '',
+        'Fecha de Vencimiento': fechaDia(c.fechaVencimiento),
+        'Monto de la Cuota (S/.)': num(c.montoCuota),
+        'Pagado (S/.)': num(c.montoPagado),
+        'Por Cobrar (S/.)': num(c.saldoPendiente ?? c.montoCuota),
+        'Días de Atraso': c.diasAtraso ?? 0,
+        'Estado': c.estado || ''
+      }));
+    case 'caja':
+      return data.map(m => ({
+        'Fecha y Hora': m.fecha || '',
+        'Tipo': m.tipo || '',
+        'Categoría': m.categoria || '',
+        'Concepto': m.concepto || '',
+        'Método': m.metodoPago || '',
+        // Ingresos y egresos en columnas separadas para que los totales tengan sentido
+        'Ingreso (S/.)': m.tipo === 'Ingreso' ? num(m.monto) : '',
+        'Egreso (S/.)': m.tipo === 'Egreso' ? num(m.monto) : '',
+        'Apertura / Cierre': (m.tipo === 'Apertura' || m.tipo === 'Cierre') ? `S/. ${num(m.monto).toFixed(2)}` : '',
+        'Responsable': m.usuario || ''
+      }));
+    case 'auditoria':
+      return data.map(a => ({
+        'Fecha y Hora': a.fecha || '',
+        'Usuario': a.usuario || '',
+        'Módulo': a.modulo || '',
+        'Acción': a.accion || '',
+        'Detalle': a.detalle || '',
+        'Tipo': a.tipo || ''
+      }));
+    default:
+      return data;
+  }
+};
 
 export default function ReportesPage() {
   const [downloading, setDownloading] = useState('');
@@ -24,7 +156,17 @@ export default function ReportesPage() {
       let data = [];
       let filename = `Reporte_${tipo}`;
 
-      if (tipo === 'clientes') {
+      let extra = {};
+
+      if (tipo === 'prestamos-cliente') {
+        const [prestamos, clientes] = await Promise.all([
+          prestamosApi.getPrestamos(),
+          clientesApi.getClientes().catch(() => [])
+        ]);
+        data = prestamos;
+        extra = { clientes: clientes || [] };
+        filename = 'Reporte_Prestamos_por_Cliente_FGR';
+      } else if (tipo === 'clientes') {
         data = await clientesApi.getClientes();
         filename = 'Reporte_Clientes_Scoring_FGR';
       } else if (tipo === 'prestamos') {
@@ -52,6 +194,8 @@ export default function ReportesPage() {
         return;
       }
 
+      data = construirFilas(tipo, data, extra);
+
       if (formato === 'pdf') {
         window.print();
         setNotification({ type: 'success', message: 'Vista previa de impresión generada.' });
@@ -71,6 +215,14 @@ export default function ReportesPage() {
   };
 
   const reportesConfig = [
+    {
+      id: 'prestamos-cliente',
+      title: 'Préstamos por Cliente',
+      desc: 'Datos de cada cliente con la fecha en que se le dio el préstamo, el monto prestado y el interés mensual y cobrado.',
+      icon: HandCoins,
+      color: '#9A7412',
+      badge: 'Nuevo'
+    },
     {
       id: 'cuotas-vencidas',
       title: 'Cartera Vencida & Antigüedad de Deuda',
@@ -140,7 +292,7 @@ export default function ReportesPage() {
         </div>
 
         <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-          Genere descargas instantáneas en formatos Excel (.xlsx) y CSV para análisis contable, auditoría y control de cartera.
+          Genere descargas instantáneas en Excel (.xlsx) y CSV para análisis contable, auditoría y control de cartera.
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>

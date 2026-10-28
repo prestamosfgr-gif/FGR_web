@@ -308,17 +308,17 @@ export const reportesApi = {
     const numCols = headers.length;
 
     // ── Paleta de colores ──────────────────────────────────────
-    const COLOR_BRAND_DARK  = '0F3460'; // azul marino oscuro
-    const COLOR_BRAND_MID   = '16213E'; // fila título
-    const COLOR_HEADER_BG   = '1A5276'; // encabezado columnas
-    const COLOR_ACCENT      = '2E86C1'; // subtítulo
-    const COLOR_ROW_ALT     = 'EBF5FB'; // fila par
+    const COLOR_BRAND_DARK  = '0A0A0A'; // negro FGR (fila título)
+    const COLOR_BRAND_MID   = '141414';
+    const COLOR_HEADER_BG   = '1C1B18'; // encabezado columnas
+    const COLOR_ACCENT      = 'A67C1A'; // dorado (subtítulo)
+    const COLOR_ROW_ALT     = 'FBF6E6'; // fila par (marfil dorado)
     const COLOR_ROW_NORMAL  = 'FFFFFF'; // fila impar
-    const COLOR_BORDER      = 'B2BEC3'; // bordes suaves
-    const COLOR_TOTAL_BG    = 'D6EAF8'; // fila totales
-    const COLOR_TEXT_HEADER = 'FFFFFF';
-    const COLOR_TEXT_DARK   = '1A202C';
-    const COLOR_TEXT_MUTED  = '5D6D7E';
+    const COLOR_BORDER      = 'D9CFB4'; // bordes suaves
+    const COLOR_TOTAL_BG    = 'F5E9C4'; // fila totales
+    const COLOR_TEXT_HEADER = 'F5E9C4'; // texto claro dorado sobre negro
+    const COLOR_TEXT_DARK   = '17140E';
+    const COLOR_TEXT_MUTED  = '5C5546';
 
     // ── Helpers de estilos ────────────────────────────────────
     const borderThin = { style: 'thin', color: { rgb: COLOR_BORDER } };
@@ -335,10 +335,13 @@ export const reportesApi = {
     });
 
     // ── Detección de tipo de columna ──────────────────────────
-    const isCurrencyCol = (key) => /monto|capital|saldo|cuota|interes|interés|pago|importe|total|ingreso|egreso|balance|caja|deuda/i.test(key);
-    const isDateCol     = (key) => /fecha|date|vencimiento|desembolso|registro|creacion|creación/i.test(key);
-    const isNumberCol   = (key) => /numero|número|id|dni|codigo|score|dias|días|plazo|cuotas/i.test(key);
-    const isPercentCol  = (key) => /tasa|porcentaje|%|mora/i.test(key);
+    // Las columnas se identifican por su encabezado (ReportesPage arma filas con nombres claros):
+    //   "(S/.)" = dinero (se suma en TOTALES) · "(%)" = porcentaje · "N°", "Días", "Cantidad" = número sin total.
+    // Las fechas llegan ya formateadas como texto y DNI/teléfonos se mantienen como texto (conservan ceros iniciales).
+    const isCurrencyCol = (key) => /\(S\/\.?\)/i.test(key);
+    const isPercentCol  = (key) => /\(%\)/.test(key);
+    const isNumberCol   = (key) => /^(N°|Días|Cantidad)/i.test(key);
+    const isDateCol     = () => false;
 
     // ── Construir array de celdas (fila 0 = título, fila 1 = subtítulo, fila 2 = encabezados, fila 3+ = datos) ──
     const TITLE_ROW  = 0;
@@ -389,7 +392,7 @@ export const reportesApi = {
     // Fila 2 — Encabezados de columna
     headers.forEach((h, c) => {
       ws[XLSXStyle.utils.encode_cell({ r: HEADER_ROW, c })] = {
-        v: h.replace(/([A-Z])/g, ' $1').trim(), // camelCase → "Camel Case"
+        v: h,
         t: 's',
         s: {
           font:      { name: 'Calibri', sz: 11, bold: true, color: { rgb: COLOR_TEXT_HEADER } },
@@ -407,7 +410,7 @@ export const reportesApi = {
 
     // Filas de datos
     let totals = {}; // acumular totales para columnas numéricas
-    headers.forEach(h => { if (isCurrencyCol(h) || isNumberCol(h)) totals[h] = 0; });
+    headers.forEach(h => { if (isCurrencyCol(h)) totals[h] = 0; });
 
     datosJson.forEach((row, r) => {
       const isEven = r % 2 === 0;
