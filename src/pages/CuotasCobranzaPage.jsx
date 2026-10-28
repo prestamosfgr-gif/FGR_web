@@ -32,7 +32,7 @@ export default function CuotasCobranzaPage({ onCobrarCuota, refreshTrigger }) {
   const handleWhatsApp = (c) => {
     const nombre = c.nombreCliente || c.clienteNombre || 'Cliente';
     const fecha = c.fechaVencimiento?.split('T')[0] || c.fechaVencimiento;
-    const monto = (parseFloat(c.montoCuota) + parseFloat(c.interesMoratorio || 0)).toFixed(2);
+    const monto = parseFloat(c.montoCuota || 0).toFixed(2);
     
     let mensaje = '';
     if (c.estado === 'Vencido') {
@@ -136,7 +136,6 @@ export default function CuotasCobranzaPage({ onCobrarCuota, refreshTrigger }) {
                   <th>Cliente Titular</th>
                   <th style={{ whiteSpace: 'nowrap' }}>Fecha Vencimiento</th>
                   <th style={{ whiteSpace: 'nowrap' }}>Interés a Cobrar</th>
-                  <th style={{ whiteSpace: 'nowrap' }}>Mora</th>
                   <th>Estado / Atraso</th>
                   <th>Acciones</th>
                 </tr>
@@ -146,8 +145,7 @@ export default function CuotasCobranzaPage({ onCobrarCuota, refreshTrigger }) {
                   const nombreCliente = c.nombreCliente || c.clienteNombre || '---';
                   const dniCliente = c.dniCliente || c.clienteDni || '';
                   const fechaFormat = c.fechaVencimiento?.split('T')[0] || c.fechaVencimiento;
-                  const mora = parseFloat(c.interesMoratorio || 0);
-                  const montoTotal = (parseFloat(c.montoCuota) + mora).toFixed(2);
+                  const montoTotal = parseFloat(c.montoCuota || 0).toFixed(2);
 
                   return (
                     <tr key={c.id}>
@@ -162,9 +160,6 @@ export default function CuotasCobranzaPage({ onCobrarCuota, refreshTrigger }) {
                       <td style={{ whiteSpace: 'nowrap' }}>{fechaFormat}</td>
                       <td style={{ fontSize: '1rem', fontWeight: 700, color: tabActive === 'vencidas' ? '#dc2626' : 'var(--primary)', whiteSpace: 'nowrap' }}>
                         S/. {parseFloat(c.montoCuota || 0).toFixed(2)}
-                      </td>
-                      <td style={{ whiteSpace: 'nowrap', color: mora > 0 ? '#7c3aed' : 'var(--text-muted)', fontWeight: mora > 0 ? 700 : 400 }}>
-                        {mora > 0 ? `S/. ${mora.toFixed(2)}` : 'S/. 0.00'}
                       </td>
                       <td>
                         <span className={`badge badge-${c.estado?.toLowerCase()}`}>

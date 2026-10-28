@@ -159,7 +159,7 @@ export default function App() {
       case 'cuotas':
         return { title: 'Cuotas & Cobranzas', subtitle: 'Control de vencimientos programados y alertas.' };
       case 'cartera-vencida':
-        return { title: 'Cartera Vencida & Mora (Aging)', subtitle: 'Gestión de clientes morosos, cálculo de penalidades y cobranza.' };
+        return { title: 'Cartera Vencida', subtitle: 'Cuotas vencidas por antigüedad de atraso y gestión de cobranza.' };
       case 'calendario':
         return { title: 'Calendario de Cobranzas', subtitle: 'Visualización interactiva de vencimientos y recaudaciones diarias.' };
       case 'caja':

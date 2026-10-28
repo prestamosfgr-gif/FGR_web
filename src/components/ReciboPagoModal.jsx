@@ -102,7 +102,7 @@ export default function ReciboPagoModal({ isOpen, onClose, pago }) {
               </div>
               {parseFloat(pago.montoInteres || 0) > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontSize: '0.8rem', color: '#64748b' }}>
-                  <span>• Pago Interés / Mora:</span>
+                  <span>• Pago de Interés:</span>
                   <span>S/. {parseFloat(pago.montoInteres).toFixed(2)}</span>
                 </div>
               )}

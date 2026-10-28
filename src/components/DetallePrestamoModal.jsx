@@ -343,11 +343,6 @@ export default function DetallePrestamoModal({ isOpen, onClose, prestamo, onCobr
                           <td style={{ whiteSpace: 'nowrap', color: '#16a34a' }}>S/. {parseFloat(c.montoPagado || 0).toFixed(2)}</td>
                           <td style={{ whiteSpace: 'nowrap', color: parseFloat(c.saldoPendiente || 0) > 0 ? '#dc2626' : '#16a34a' }}>
                             S/. {parseFloat(c.saldoPendiente || 0).toFixed(2)}
-                            {parseFloat(c.interesMoratorio || 0) > 0 && (
-                              <span style={{ fontSize: '0.72rem', color: '#dc2626', display: 'block' }}>
-                                + S/. {parseFloat(c.interesMoratorio).toFixed(2)} mora
-                              </span>
-                            )}
                           </td>
                           <td>
                             <span className={`badge badge-${c.estado?.toLowerCase()}`}>

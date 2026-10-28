@@ -85,7 +85,7 @@ export default function DashboardPage({
   const dineroPrestado = kpis?.dineroPrestado ?? kpis?.montoTotalDispersado ?? 0;
   const dineroRecuperado = kpis?.dineroRecuperado ?? kpis?.montoTotalCobrado ?? 0;
   const cuotasVencidasCant = kpis?.cuotasVencidasCount ?? cuotasVencidas.length ?? 0;
-  const montoVencido = kpis?.montoVencido ?? cuotasVencidas.reduce((sum, c) => sum + (c.montoCuota || 0) + (c.interesMoratorio || 0), 0);
+  const montoVencido = kpis?.montoVencido ?? cuotasVencidas.reduce((sum, c) => sum + (c.montoCuota || 0), 0);
   const MESES_DEFAULT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
   const rawMonthlyData = graficos?.pagosPorMes || graficos?.ingresosMensuales || [];
@@ -243,7 +243,7 @@ export default function DashboardPage({
                 style={{ justifyContent: 'center', color: '#dc2626', borderColor: 'rgba(220, 38, 38, 0.3)' }}
               >
                 <AlertTriangle size={16} />
-                Gestión de Mora
+                Cartera Vencida
               </button>
 
               <button 

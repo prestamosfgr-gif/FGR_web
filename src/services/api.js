@@ -134,7 +134,7 @@ export const prestamosApi = {
   }
 };
 
-// --- CUOTAS & MORA API ---
+// --- CUOTAS API ---
 export const cuotasApi = {
   getCuotasByPrestamo: async (prestamoId) => {
     const res = await apiClient.get(`/api/Cuotas/prestamo/${prestamoId}`);

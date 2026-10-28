@@ -35,7 +35,7 @@ export default function ReportesPage() {
         filename = 'Reporte_Transacciones_Pagos_FGR';
       } else if (tipo === 'cuotas-vencidas') {
         data = await cuotasApi.getCuotasVencidas();
-        filename = 'Reporte_Cartera_Vencida_Mora_FGR';
+        filename = 'Reporte_Cartera_Vencida_FGR';
       } else if (tipo === 'cuotas-por-vencer') {
         data = await cuotasApi.getCuotasPorVencer(7);
         filename = 'Reporte_Cronograma_Cobros_7Dias_FGR';
@@ -73,8 +73,8 @@ export default function ReportesPage() {
   const reportesConfig = [
     {
       id: 'cuotas-vencidas',
-      title: 'Cartera Vencida & Antigüedad de Mora',
-      desc: 'Detalle de cuotas impagas, días de atraso, interés moratorio y clientes en riesgo.',
+      title: 'Cartera Vencida & Antigüedad de Deuda',
+      desc: 'Detalle de cuotas impagas, días de atraso y clientes en riesgo.',
       icon: AlertTriangle,
       color: '#dc2626',
       badge: 'Prioridad Crítica'

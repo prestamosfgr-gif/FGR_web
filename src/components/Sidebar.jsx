@@ -57,7 +57,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpe
     },
     { 
       id: 'cartera-vencida', 
-      label: 'Cartera Vencida (Mora)', 
+      label: 'Cartera Vencida', 
       icon: AlertTriangle, 
       highlight: true 
     },

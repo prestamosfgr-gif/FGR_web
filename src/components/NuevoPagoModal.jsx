@@ -38,16 +38,19 @@ export default function NuevoPagoModal({ isOpen, onClose, initialCuota = null, i
     if (isOpen) {
       loadPrestamos();
       if (initialCuota) {
+        // Sin mora: se cobra solo el interés pendiente de la cuota (saldo si ya tuvo un abono parcial)
+        const saldoInicial = parseFloat(initialCuota.saldoPendiente);
+        const montoACobrar = (saldoInicial > 0 ? saldoInicial : parseFloat(initialCuota.montoCuota || 0)).toFixed(2);
         setFormData(prev => ({
           ...prev,
           prestamoId: initialCuota.prestamoId || '',
           cuotaId: initialCuota.id,
-          montoInteres: (parseFloat(initialCuota.montoCuota) + parseFloat(initialCuota.interesMoratorio || 0)).toFixed(2),
+          montoInteres: montoACobrar,
           montoCapital: '',
-          montoTotal: (parseFloat(initialCuota.montoCuota) + parseFloat(initialCuota.interesMoratorio || 0)).toFixed(2),
+          montoTotal: montoACobrar,
           metodoPago: 'Efectivo',
           numeroOperacion: `REC-${Date.now().toString().slice(-6)}`,
-          observaciones: initialCuota.interesMoratorio > 0 ? `Cobro con mora de S/. ${parseFloat(initialCuota.interesMoratorio).toFixed(2)}` : ''
+          observaciones: ''
         }));
         setTipoPago('interes');
         if (initialCuota.prestamoId) {
@@ -89,12 +92,13 @@ export default function NuevoPagoModal({ isOpen, onClose, initialCuota = null, i
       setCuotas(pendientes);
       if (pendientes.length > 0 && !formData.cuotaId) {
         const prim = pendientes[0];
-        const montoCuotaConMora = (parseFloat(prim.montoCuota) + parseFloat(prim.interesMoratorio || 0)).toFixed(2);
+        const saldoPrim = parseFloat(prim.saldoPendiente);
+        const montoCuotaPendiente = (saldoPrim > 0 ? saldoPrim : parseFloat(prim.montoCuota || 0)).toFixed(2);
         setFormData(prev => ({
           ...prev,
           cuotaId: prim.id,
-          montoInteres: montoCuotaConMora,
-          montoTotal: montoCuotaConMora
+          montoInteres: montoCuotaPendiente,
+          montoTotal: montoCuotaPendiente
         }));
       }
     } catch (err) {
@@ -517,7 +521,7 @@ export default function NuevoPagoModal({ isOpen, onClose, initialCuota = null, i
                   )}
                 </div>
 
-                {cuotaSeleccionadaObj && cuotaSeleccionadaObj.interesMoratorio > 0 && (
+                {cuotaSeleccionadaObj && cuotaSeleccionadaObj.diasAtraso > 0 && (
                   <div style={{
                     background: 'rgba(239, 68, 68, 0.08)',
                     border: '1px solid rgba(239, 68, 68, 0.25)',
@@ -532,7 +536,7 @@ export default function NuevoPagoModal({ isOpen, onClose, initialCuota = null, i
                   }}>
                     <AlertTriangle size={16} />
                     <span>
-                      Cuota en mora ({cuotaSeleccionadaObj.diasAtraso} días de atraso). Recargo calculado: S/. {parseFloat(cuotaSeleccionadaObj.interesMoratorio).toFixed(2)}.
+                      Cuota vencida ({cuotaSeleccionadaObj.diasAtraso} días de atraso). No se aplica recargo.
                     </span>
                   </div>
                 )}
